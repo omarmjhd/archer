@@ -213,6 +213,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
             return new Vector3(0,0,0);
         }
 
+
         // onPose() is called whenever a Myo provides a new pose.
         @Override
         public void onPose(Myo myo, long timestamp, Pose pose) {
@@ -553,6 +554,49 @@ public class ArcherActivity extends Activity implements SensorEventListener,
             Vector3 p = new Vector3(v.x()*dt, v.y()*dt, v.z()*dt);
             finalPos.add(p);
         }
+        velValues = new ArrayList<>();
+        velTimes = new ArrayList<>();
+        List<Vector3> mAverageAccel = movingAverage(mAccelValues, 3);
+        for (int i = 1; i < mAverageAccel.size(); i++) {
+            Vector3 a = mAverageAccel.get(i);
+            //Log.d(LOG_TAG, Long.toString(mAccelTimes.get(i)) + ", " + a.toString());
+            long dt = mAccelTimes.get(i) - mAccelTimes.get(i - 1);
+            Vector3 v = new Vector3(a.x()*dt, a.y()*dt, a.z()*dt);
+            velValues.add(v);
+            velTimes.add(mAccelTimes.get(i));
+        }
+        Vector3 avgFinalPos = new Vector3(0,0,0);
+        for (int i = 1; i < velValues.size(); i++) {
+            Vector3 v = velValues.get(i);
+            long dt = velTimes.get(i) - velTimes.get(i - 1);
+            Vector3 p = new Vector3(v.x()*dt, v.y()*dt, v.z()*dt);
+            avgFinalPos.add(p);
+        }
+        Log.d(LOG_TAG, "Average Distance: " + Double.toString(avgFinalPos.length()));
         return finalPos.length();
+    }
+
+    private List<Vector3> movingAverage(List<Vector3> accels, int sampleSize) {
+        List<Vector3> result = new ArrayList<>(accels.size());
+        if (accels.size() >= sampleSize) {
+            for (int i = 0; i < accels.size(); i++) {
+                int count = 0;
+                Vector3 avg = new Vector3(accels.get(i));
+                for (int j = i; j < i + sampleSize; j++) {
+                    if ((j >= accels.size())) {
+                        break;
+                    }
+                    avg.add(accels.get(i));
+                    count++;
+                }
+                avg.divide((double) count);
+                result.add(avg);
+            }
+            for (Vector3 current: result) {
+                Log.d(LOG_TAG, current.toString());
+            }
+            return result;
+        }
+        return accels;
     }
 }
