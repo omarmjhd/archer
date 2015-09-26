@@ -2,6 +2,8 @@ package apps.bunch.im.archer;
 
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.SphericalUtil;
 import com.thalmic.myo.Arm;
 
 /**
@@ -193,6 +195,10 @@ public class PhysicsEngine {
         double bearing = directionAngle(orientation, arm);
 
         return arrowLandingLatitude(latitudeInitial, bearing, distance);
+    }
+
+    public static LatLng arrowFlightLatLng(LatLng source, double force, float[] orientation, Arm arm) {
+        return SphericalUtil.computeOffset(source, distanceTraveled(force, orientation), Math.toDegrees(orientation[0]));
     }
 
 }

@@ -20,6 +20,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
 import com.thalmic.myo.AbstractDeviceListener;
 import com.thalmic.myo.Arm;
 import com.thalmic.myo.DeviceListener;
@@ -455,29 +457,33 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         // force made up = 100
         // distance drawn made up = 10
         // orientation made up = [0.8, -1.4, 0.26]
-
+        double force = 5000.0;
         mHitLong = PhysicsEngine.arrowFlightLongitude(
                 mCurrentLocation.getLatitude(),
                 mCurrentLocation.getLongitude(),
-                timeToForce(mStartPullTime, mEndPullTime),
+                force,
                 mOrientation,
                 Arm.RIGHT
         );
         mHitLat = PhysicsEngine.arrowFlightLatitude(
                 mCurrentLocation.getLatitude(),
-                timeToForce(mStartPullTime, mEndPullTime),
+                force,
                 mOrientation,
                 Arm.RIGHT
         );
-        Log.i(LOG_TAG, "Using force: " + timeToForce(mStartPullTime, mEndPullTime));
-        Log.i(LOG_TAG, "Using orientation:" + Double.toString(mOrientation[0]) + ", "
+        LatLng mHitLatLng = PhysicsEngine.arrowFlightLatLng(
+                new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()),
+                force, mOrientation,
+                Arm.RIGHT);
+        Log.i(LOG_TAG, "Using force: " + Double.toString(force));
+        Log.i(LOG_TAG, "Using orientation: " + Double.toString(mOrientation[0]) + ", "
                 + Double.toString(mOrientation[1]) + ", "
                 + Double.toString(mOrientation[2]));
-        Log.i(LOG_TAG, "Sending hit long: " + Double.toString(mHitLong));
-        Log.i(LOG_TAG, "Sending hit lat: " + Double.toString(mHitLat));
+        Log.i(LOG_TAG, "Sending hit lat: " + Double.toString(mHitLatLng.latitude));
+        Log.i(LOG_TAG, "Sending hit long: " + Double.toString(mHitLatLng.longitude));
 
-        intent.putExtra(ResultMapActivity.HIT_LATITUDE, mHitLat);
-        intent.putExtra(ResultMapActivity.HIT_LONGITUDE, mHitLong);
+        intent.putExtra(ResultMapActivity.HIT_LATITUDE, mHitLatLng.latitude);
+        intent.putExtra(ResultMapActivity.HIT_LONGITUDE, mHitLatLng.longitude);
         startActivity(intent);
     }
 
