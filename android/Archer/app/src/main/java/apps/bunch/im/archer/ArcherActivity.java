@@ -457,24 +457,10 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         // force made up = 100
         // distance drawn made up = 10
         // orientation made up = [0.8, -1.4, 0.26]
-        double force = 5000.0;
-        mHitLong = PhysicsEngine.arrowFlightLongitude(
-                mCurrentLocation.getLatitude(),
-                mCurrentLocation.getLongitude(),
-                force,
-                mOrientation,
-                Arm.RIGHT
-        );
-        mHitLat = PhysicsEngine.arrowFlightLatitude(
-                mCurrentLocation.getLatitude(),
-                force,
-                mOrientation,
-                Arm.RIGHT
-        );
+        double force = timeToForce(mStartPullTime, mEndPullTime);
         LatLng mHitLatLng = PhysicsEngine.arrowFlightLatLng(
                 new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()),
-                force, mOrientation,
-                Arm.RIGHT);
+                force, mOrientation);
         Log.i(LOG_TAG, "Using force: " + Double.toString(force));
         Log.i(LOG_TAG, "Using orientation: " + Double.toString(mOrientation[0]) + ", "
                 + Double.toString(mOrientation[1]) + ", "
@@ -552,7 +538,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
     private double timeToForce(long startTime, long endTime) {
         double deltaTime = (double) (endTime - startTime) / 1000;
         Log.d(LOG_TAG, Double.toString(10*deltaTime));
-        return 1000*deltaTime;
+        return deltaTime;
     }
 
     private void updateStrengthBar() {
