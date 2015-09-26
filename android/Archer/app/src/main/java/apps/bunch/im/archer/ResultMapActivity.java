@@ -18,6 +18,8 @@ public class ResultMapActivity extends FragmentActivity {
     public static final String TARGET_LATITUDE = "im.bunch.apps.archer.TARGET_LATITUDE";
     public static final String SOURCE_LONGITUDE = "im.bunch.apps.archer.SOURCE_LONGITUDE";
     public static final String SOURCE_LATITUDE = "im.bunch.apps.archer.SOURCE_LATITUDE";
+    public static final String HIT_LONGITUDE = "im.bunch.apps.archer.HIT_LONGITUDE";
+    public static final String HIT_LATITUDE = "im.bunch.apps.archer.HIT_LATITUDE";
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private LatLng mHit;
