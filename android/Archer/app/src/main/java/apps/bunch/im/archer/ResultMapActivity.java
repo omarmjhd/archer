@@ -1,6 +1,7 @@
 package apps.bunch.im.archer;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -111,12 +112,13 @@ public class ResultMapActivity extends FragmentActivity {
         mMap.addMarker(hitMarker);
         mMap.addMarker(srcMarker);
         mMap.addMarker(targetMarker);
+        mMap.addCircle(new CircleOptions().center(mTarget).radius(100).strokeColor(Color.RED).fillColor(Color.BLUE));
 
-        if (distanceCalculation() < 50000) { //abitrarily high to test
+        /*if (distanceCalculation() < 50000) { //abitrarily high to test
 
-            mMap.addCircle(new CircleOptions().center(mTarget));
 
-        }
+
+        }*/
     }
 
     private float distanceCalculation() {
