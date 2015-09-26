@@ -9,7 +9,7 @@ import com.thalmic.myo.Arm;
  */
 public class PhysicsEngine {
 
-    private static final double earthRadius = 6371;
+    private static final double earthRadius = 6371 * 1000;
     private static final double metersInKilometer = 1000;
     public static final double mass = 500;
 
@@ -28,8 +28,7 @@ public class PhysicsEngine {
      * @return velocity at which the arrow leaves the bow
      */
     private static double velocity(double acceleration) {
-        //return Math.sqrt((double) 2 * acceleration);
-        return 100;
+        return Math.sqrt((double) 2 * acceleration);
     }
 
     /**
@@ -62,7 +61,7 @@ public class PhysicsEngine {
      * @return the roll, the angle at which the arrow leaves the bow
      */
     private static double arrowAngle(float[] angles) {
-        return angles[2];
+        return angles[1];
     }
 
     //azimuth, pitch, roll,
@@ -117,8 +116,8 @@ public class PhysicsEngine {
     private static double arrowLandingLatitude(double latitude, double bearing,
                                                double distance) {
 
-        return Math.asin(Math.sin(Math.toRadians(latitude)) * Math.cos((distance / metersInKilometer) / earthRadius) +
-                Math.cos(Math.toRadians(latitude)) * Math.sin((distance / metersInKilometer) / earthRadius) * Math.cos(bearing));
+        return Math.asin(Math.sin(Math.toRadians(latitude)) * Math.cos((distance) / earthRadius) +
+                Math.cos(Math.toRadians(latitude)) * Math.sin((distance) / earthRadius) * Math.cos(bearing));
 
     }
 
@@ -128,6 +127,14 @@ public class PhysicsEngine {
      * Math.cos(d/R)-Math.sin(φ1)*Math.sin(φ2));
      *
      * lon2: =lon1 + ATAN2(COS(d/R)-SIN(lat1)*SIN(lat2), SIN(brng)*SIN(d/R)*COS(lat1))
+     *
+     * Latitude:
+     * var φ2 = Math.asin( Math.sin(φ1)*Math.cos(d/R) +
+     * Math.cos(φ1)*Math.sin(d/R)*Math.cos(brng) );
+     *
+     * Longitude
+     * var λ2 = λ1 + Math.atan2(Math.sin(brng)*Math.sin(d/R)*Math.cos(φ1),
+     * Math.cos(d/R)-Math.sin(φ1)*Math.sin(φ2));
      *
      * @param latitudeInitial latitude of current location
      * @param longitude longitude of current position
@@ -140,8 +147,9 @@ public class PhysicsEngine {
 
         double latitudeFinal = arrowLandingLatitude(latitudeInitial, bearing, distance);
 
-        return longitude + Math.atan2(Math.sin(Math.toRadians(bearing)) * Math.sin((distance / metersInKilometer) / earthRadius ) * Math.cos(Math.toRadians(latitudeInitial)),
-                Math.cos((distance / metersInKilometer) / earthRadius) - Math.sin(Math.toRadians(latitudeInitial)) * Math.sin(latitudeFinal));
+
+        return longitude + Math.atan2(Math.sin(Math.toRadians(bearing)) * Math.sin((distance) / earthRadius ) * Math.cos(Math.toRadians(latitudeInitial)),
+                Math.cos((distance) / earthRadius) - Math.sin(Math.toRadians(latitudeInitial)) * Math.sin(latitudeFinal));
 
     }
 
@@ -161,9 +169,12 @@ public class PhysicsEngine {
         double distance = distanceTraveled(force, orientation);
         double bearing = directionAngle(orientation, arm);
 
-        return 50.0;
-        //return arrowLandingLongitude(latitudeInitial,longitudeInitial, bearing, distance);
+        Log.d("Physics", "Distance: " + Double.toString(distance));
+        Log.d("Physics", "Latitude Initial: " + Double.toString(latitudeInitial));
+        Log.d("Physics", "Longitude Initial: " + Double.toString(longitudeInitial));
+        Log.d("Physics", "Bearing Initial: " + Double.toString(bearing));
 
+        return arrowLandingLongitude(latitudeInitial,longitudeInitial, bearing, distance);
     }
 
     /**
@@ -181,8 +192,7 @@ public class PhysicsEngine {
         double distance = distanceTraveled(force, orientation);
         double bearing = directionAngle(orientation, arm);
 
-        return 50.0;
-        //return arrowLandingLatitude(latitudeInitial, bearing, distance);
+        return arrowLandingLatitude(latitudeInitial, bearing, distance);
     }
 
 }
