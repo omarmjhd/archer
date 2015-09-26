@@ -6,6 +6,9 @@ package apps.bunch.im.archer;
  */
 public class PhysicsEngine {
 
+    public static final double earthRadius = 6371;
+    public static final double metersInKilometer = 1000;
+
     private static double acceleration(double force, double mass) {
         return force / mass;
     }
@@ -43,7 +46,8 @@ public class PhysicsEngine {
      * @return distanceTraveled: the distance traveled by an arrow who's force, mass, distanceDrawn and
      * angle (in radias) are given as inputs
      */
-    public static double distanceTraveled(double force, double mass, double distanceDrawn, float[] orientation) {
+    public static double distanceTraveled(double force, double mass, double distanceDrawn,
+                                          float[] orientation) {
 
         double acceleration = acceleration(force, mass);
         double velocity = velocity(acceleration, distanceDrawn);
@@ -54,20 +58,44 @@ public class PhysicsEngine {
 
     }
 
-    //yaw, pitch, roll,
-    private static double azimuthFormat(float[] angles) {
-        return angles[0];
+    private static double arrowLandingLatitude(double latitude, double bearing,
+                                               double distance) {
+        /*Math.asin( Math.sin(φ1)*Math.cos(d/R) +
+                Math.cos(φ1)*Math.sin(d/R)*Math.cos(brng) );*/
+
+        return Math.asin(Math.sin(Math.toRadians(latitude)) * Math.cos((distance / metersInKilometer) / earthRadius) +
+                Math.cos(Math.toRadians(latitude)) * Math.sin((distance / metersInKilometer) / earthRadius) * Math.cos(Math.toRadians(bearing)));
+
     }
 
-    //x = long y = lat
-    private static double arrowTravelX(double distance, double longitude, double azimuth) {
-        return 0;
+    private static double arrowLandingLongitude(double latitudeInitial, double longitude,
+                                               double bearing, double distance) {
+        /*λ1 + Math.atan2(Math.sin(brng)*Math.sin(d/R)*Math.cos(φ1),
+                Math.cos(d/R)-Math.sin(φ1)*Math.sin(φ2));*/
+
+        double latitudeFinal = arrowLandingLatitude(latitudeInitial, bearing, distance);
+
+        return longitude + Math.atan2(Math.sin(Math.toRadians(bearing)) * Math.sin((distance / metersInKilometer) / earthRadius ) * Math.cos(Math.toRadians(latitudeInitial)),
+                Math.cos((distance / metersInKilometer) / earthRadius) - Math.sin(Math.toRadians(latitudeInitial)) * Math.sin(Math.toRadians(latitudeFinal)));
+
     }
 
-    private static double arrowTravelY(double distance, double latitude, double azimuth) {
-        return 0;
+    public static double arrowFlightLongitude(double latitudeInitial, double longitudeInitial, double force, double mass, double distanceDrawn, float[] orientation) {
+
+        double distance = distanceTraveled(force, mass, distanceDrawn, orientation);
+        double bearing = directionAngle(orientation);
+
+        return arrowLandingLongitude(latitudeInitial,longitudeInitial, bearing, distance);
+
     }
 
+    public static double arrowFlightLatitude(double latitudeInitial, double force, double mass, double distanceDrawn, float[] orientation) {
 
+        double distance = distanceTraveled(force, mass, distanceDrawn, orientation);
+        double bearing = directionAngle(orientation);
+
+        return arrowLandingLatitude(latitudeInitial, bearing, distance);
+
+    }
 
 }
