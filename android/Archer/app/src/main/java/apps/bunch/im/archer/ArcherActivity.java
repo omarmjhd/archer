@@ -26,11 +26,11 @@ public class ArcherActivity extends Activity {
     public static String LOG_TAG = "ArcherActivity";
 
     public enum State {
-        WATING, PULLING, FLYING
+        WAITING, PULLING, FLYING
     }
 
     private TextView mStateView;
-    private State mState;
+    private State mState = State.WAITING;
 
     // Classes that inherit from AbstractDeviceListener can be used to receive events from Myo devices.
     // If you do not override an event, the default behavior is to do nothing.
@@ -54,7 +54,7 @@ public class ArcherActivity extends Activity {
         // arm. This lets Myo know which arm it's on and which way it's facing.
         @Override
         public void onArmSync(Myo myo, long timestamp, Arm arm, XDirection xDirection) {
-            Log.d(LOG_TAG,getString(myo.getArm() == Arm.LEFT ?
+            Log.d(LOG_TAG, getString(myo.getArm() == Arm.LEFT ?
                     R.string.arm_left : R.string.arm_right));
         }
 
@@ -126,7 +126,7 @@ public class ArcherActivity extends Activity {
                     break;
                 case FIST:
                     Log.i(LOG_TAG, "Fist pose.");
-                    if (mState == State.WATING) {
+                    if (mState == State.WAITING) {
                         setStatePulling();
                     }
                     break;
@@ -166,8 +166,6 @@ public class ArcherActivity extends Activity {
         }
     };
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -183,7 +181,6 @@ public class ArcherActivity extends Activity {
             finish();
             return;
         }
-
 
         // Next, register for DeviceListener callbacks.
         hub.addListener(mListener);
@@ -234,17 +231,20 @@ public class ArcherActivity extends Activity {
     }
 
     private void setStateFlying() {
+        Log.i(LOG_TAG, "Changing state to flying.");
         mState = State.FLYING;
         mStateView.setText(getString(R.string.state_flying));
     }
 
     private void setStatePulling() {
+        Log.i(LOG_TAG, "Changing state to pulling.");
         mState = State.PULLING;
         mStateView.setText(getString(R.string.state_pulling));
     }
 
     private void setStateWaiting() {
-        mState = State.WATING;
+        Log.i(LOG_TAG, "Changing state to waiting.");
+        mState = State.WAITING;
         mStateView.setText(getString(R.string.state_waiting));
     }
 
