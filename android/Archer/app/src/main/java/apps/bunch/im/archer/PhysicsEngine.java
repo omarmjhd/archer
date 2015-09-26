@@ -22,9 +22,16 @@ public class PhysicsEngine {
         return velocity * Math.cos(radians) * time;
     }
 
-    //yaw, pitch, roll,
-    private static double launchAngleFormat(float[] angles) {
+    //azimuth, pitch, roll,
+    //this is for angle of launch (shoulder tilt)
+    private static double arrowAngle(float[] angles) {
         return angles[2];
+    }
+
+    //azimuth, pitch, roll,
+    //this is for the direction that the arrow will be fired (long, latd type)
+    private static double directionAngle(float[] angles) {
+        return angles[0] + 1.57;
     }
 
     /**
@@ -32,14 +39,18 @@ public class PhysicsEngine {
      * @param force force of arrow's motion
      * @param mass mass of arrow
      * @param distanceDrawn distance that the arrow is drawn
-     * @param radians angle that the bow is held at (in radians)
+     * @param orientation orientation array of the phone
      * @return distanceTraveled: the distance traveled by an arrow who's force, mass, distanceDrawn and
      * angle (in radias) are given as inputs
      */
-    public static double distanceTraveled(double force, double mass, double distanceDrawn, double radians) {
+    public static double distanceTraveled(double force, double mass, double distanceDrawn, float[] orientation) {
 
-        return distance(time(velocity(acceleration(force, mass), distanceDrawn), radians),
-                velocity(acceleration(force, mass), distanceDrawn), radians);
+        double acceleration = acceleration(force, mass);
+        double velocity = velocity(acceleration, distanceDrawn);
+        double arrowAngle = arrowAngle(orientation);
+        double time = time(velocity, arrowAngle);
+
+        return distance(time, velocity, arrowAngle);
 
     }
 
