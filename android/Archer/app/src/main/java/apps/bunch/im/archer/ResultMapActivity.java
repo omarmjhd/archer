@@ -94,7 +94,7 @@ public class ResultMapActivity extends FragmentActivity {
         Log.d(LOG_TAG, "Hit: " + mHit.toString());
 
         MarkerOptions hitMarker = new MarkerOptions().position(mHit).icon(
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
         ).title("Hit");
 
         MarkerOptions srcMarker = new MarkerOptions().position(mSource).icon(
@@ -102,7 +102,7 @@ public class ResultMapActivity extends FragmentActivity {
         ).title("You");
 
         MarkerOptions targetMarker = new MarkerOptions().position(mTarget).icon(
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
         ).title("Target");
 
         mMap.addMarker(hitMarker);
