@@ -455,6 +455,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         // force made up = 100
         // distance drawn made up = 10
         // orientation made up = [0.8, -1.4, 0.26]
+
         mHitLong = PhysicsEngine.arrowFlightLongitude(
                 mCurrentLocation.getLatitude(),
                 mCurrentLocation.getLongitude(),
@@ -474,6 +475,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
                 + Double.toString(mOrientation[2]));
         Log.i(LOG_TAG, "Sending hit long: " + Double.toString(mHitLong));
         Log.i(LOG_TAG, "Sending hit lat: " + Double.toString(mHitLat));
+
         intent.putExtra(ResultMapActivity.HIT_LATITUDE, mHitLat);
         intent.putExtra(ResultMapActivity.HIT_LONGITUDE, mHitLong);
         startActivity(intent);

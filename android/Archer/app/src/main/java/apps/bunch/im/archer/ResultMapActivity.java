@@ -8,8 +8,11 @@ import android.util.Log;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import android.location.Location;
+
 
 public class ResultMapActivity extends FragmentActivity {
 
@@ -93,10 +96,6 @@ public class ResultMapActivity extends FragmentActivity {
         Log.d(LOG_TAG, "Target: " + mTarget.toString());
         Log.d(LOG_TAG, "Hit: " + mHit.toString());
 
-        MarkerOptions hitMarker = new MarkerOptions().position(mHit).icon(
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
-        ).title("Hit");
-
         MarkerOptions srcMarker = new MarkerOptions().position(mSource).icon(
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
         ).title("You");
@@ -105,8 +104,31 @@ public class ResultMapActivity extends FragmentActivity {
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
         ).title("Target");
 
+        MarkerOptions hitMarker = new MarkerOptions().position(mHit).icon(
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+        ).title("Hit");
+
         mMap.addMarker(hitMarker);
         mMap.addMarker(srcMarker);
         mMap.addMarker(targetMarker);
+
+        if (distanceCalculation() < 50000) { //abitrarily high to test
+
+            mMap.addCircle(new CircleOptions().center(mTarget));
+
+        }
+    }
+
+    private float distanceCalculation() {
+
+        Location target = new Location("Target");
+        target.setLatitude(mTarget.latitude);
+        target.setLongitude(mTarget.longitude);
+
+        Location hit = new Location("Hit");
+        target.setLatitude(mHit.latitude);
+        target.setLongitude(mHit.longitude);
+
+        return hit.distanceTo(target); //distanceTo returns meters
     }
 }

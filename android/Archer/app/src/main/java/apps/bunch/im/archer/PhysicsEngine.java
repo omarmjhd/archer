@@ -39,8 +39,7 @@ public class PhysicsEngine {
      * @return time that arrow is in the air
      */
     private static double time(double velocity, double radians) {
-        //return (velocity * Math.sin(radians)) / 9.8;
-        return 600;
+        return (velocity * Math.sin(radians)) / 9.8;
     }
 
     /**
@@ -162,7 +161,8 @@ public class PhysicsEngine {
         double distance = distanceTraveled(force, orientation);
         double bearing = directionAngle(orientation, arm);
 
-        return arrowLandingLongitude(latitudeInitial,longitudeInitial, bearing, distance);
+        return 50.0;
+        //return arrowLandingLongitude(latitudeInitial,longitudeInitial, bearing, distance);
 
     }
 
@@ -181,8 +181,8 @@ public class PhysicsEngine {
         double distance = distanceTraveled(force, orientation);
         double bearing = directionAngle(orientation, arm);
 
-        return arrowLandingLatitude(latitudeInitial, bearing, distance);
-
+        return 50.0;
+        //return arrowLandingLatitude(latitudeInitial, bearing, distance);
     }
 
 }
