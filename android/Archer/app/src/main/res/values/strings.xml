@@ -18,7 +18,7 @@
 
     <string name="action_scan">Scan for Myo</string>
 
-    <string name="state_waiting">Pretend to draw a bow.</string>
+    <string name="state_waiting">Pretend to draw a bow when ready.</string>
     <string name="state_pulling">Let go of the bow.</string>
     <string name="state_flying">Your arrow is flying.</string>
     <string name="title_activity_maps">Map</string>

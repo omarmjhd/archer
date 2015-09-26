@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.VelocityTracker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +31,10 @@ import com.thalmic.myo.Vector3;
 import com.thalmic.myo.XDirection;
 import com.thalmic.myo.scanner.ScanActivity;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+
 import javax.xml.transform.Result;
 
 public class ArcherActivity extends Activity implements SensorEventListener,
@@ -40,6 +45,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
     public static String STATE_RESOLVING_KEY = "StateResolvingKey";
     public static String TARGET_LATITUDE_KEY = "TargetLatitudeKey";
     public static String TARGET_LONGITUDE_KEY = "TargetLongitudeKey";
+    public static double ACCEL_UNIT_CONVERSION = (0.98 / 1000); // convert to meters
     private static final int REQUEST_RESOLVE_ERROR = 1001;
 
     public enum State {
@@ -57,7 +63,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
     private TextView mLinearAcceleration;
     private boolean mMyoConnected = false;
     private boolean mMyoSynced = false;
-    private State mState = State.WAITING;
+    private State mState;
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
 
@@ -68,7 +74,10 @@ public class ArcherActivity extends Activity implements SensorEventListener,
     private Location mCurrentLocation;
     private boolean mResolvingError = false;
 
-    private Vector3 lastAcceleration;
+    private Vector3 mLastAcceleration;
+    private long mlastAccelTime;
+    private List<Vector3> mAccelValues;
+    private List<Long> mAccelTimes;
 
     // Classes that inherit from AbstractDeviceListener can be used to receive events from Myo devices.
     // If you do not override an event, the default behavior is to do nothing.
@@ -126,7 +135,8 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         public void onAccelerometerData(Myo myo, long timestamp, Vector3 accel) {
             //Log.d(LOG_TAG, "Acceleration: " + accel.toString());
             mMyoAcceleration.setText(String.format("Myo Accel (x,y,z) => %.5f, %.5f, %.5f", accel.x(), accel.y(), accel.z()));
-            lastAcceleration = accel;
+            mLastAcceleration = accel;
+            mlastAccelTime = timestamp;
         }
 
         @Override
@@ -151,7 +161,8 @@ public class ArcherActivity extends Activity implements SensorEventListener,
             Vector3 g = new Vector3(
                     2 * (rotation.x() * rotation.z() - rotation.w() * rotation.y()),
                     2 * (rotation.w() * rotation.x() + rotation.y() * rotation.z()),
-                    rotation.w() * rotation.w() - rotation.x() * rotation.x() - rotation.y() * rotation.y() + rotation.z() * rotation.z()
+                    rotation.w() * rotation.w() - rotation.x() * rotation.x()
+                            - rotation.y() * rotation.y() + rotation.z() * rotation.z()
             );
             /*
             // Next, we apply a rotation to the text view using the roll, pitch, and yaw.
@@ -159,17 +170,43 @@ public class ArcherActivity extends Activity implements SensorEventListener,
             mTextView.setRotationX(pitch);
             mTextView.setRotationY(yaw);
             */
-            mMyoOrientation.setText(String.format("Myo Orient (y,p,r) => %.2f, %.2f, %.2f", yaw, pitch, roll));
-            mGravity.setText(String.format("Gravity (x,y,z) => %.4f, %.4f, %.4f", g.x(), g.y(), g.z()));
-            setAccelerationDataNullGravity(g, lastAcceleration);
+            mMyoOrientation.setText(
+                String.format(
+                    "Myo Orient (y,p,r) => %.2f, %.2f, %.2f",
+                    yaw, pitch, roll
+                )
+            );
+            mGravity.setText(
+                    String.format(
+                            "Gravity (x,y,z) => %.4f, %.4f, %.4f", g.x(), g.y(), g.z()
+                    )
+            );
+
+            Vector3 accel = calcLinearAccel(g, mLastAcceleration);
+            mLinearAcceleration.setText(
+                    String.format(
+                            "LinAccel => (x,y,z): %.4f, %.4f, %.4f",
+                            accel.x(), accel.y(), accel.z()
+                    )
+            );
+
+            if (mState == State.PULLING) {
+                mAccelValues.add(accel);
+                mAccelTimes.add(mlastAccelTime);
+            }
         }
 
-        private void setAccelerationDataNullGravity(Vector3 g, Vector3 accel) {
+        private Vector3 calcLinearAccel(Vector3 g, Vector3 accel) {
             if (g != null && accel != null) {
-                Vector3 linear = new Vector3(g);
-                linear.subtract(accel);
-                mLinearAcceleration.setText(String.format("LinAccel => (x,y,z): %.4f, %.4f, %.4f", linear.x(), linear.y(), linear.z()));
+                //Vector3 linear = new Vector3(g);
+                //linear.subtract(accel);
+                //linear.multiply(ACCEL_UNIT_CONVERSION);
+                Vector3 linear = new Vector3(accel);
+                linear.subtract(g);
+                linear.multiply(ACCEL_UNIT_CONVERSION);
+                return linear;
             }
+            return new Vector3(0,0,0);
         }
 
         // onPose() is called whenever a Myo provides a new pose.
@@ -269,7 +306,6 @@ public class ArcherActivity extends Activity implements SensorEventListener,
                 .addOnConnectionFailedListener(this)
                 .build();
 
-
         // get this data from the intent
         Intent intent = getIntent();
         if (intent != null && intent.getExtras() != null) {
@@ -281,6 +317,9 @@ public class ArcherActivity extends Activity implements SensorEventListener,
             // automatically show connect dialog
             onScanActionSelected();
         }
+
+        // begin in the waiting state
+        setStateWaiting();
     }
 
     @Override
@@ -389,6 +428,8 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         Log.i(LOG_TAG, "Changing state to flying.");
         mState = State.FLYING;
         mStateView.setText(getString(R.string.state_flying));
+        double d = calcDistance();
+        Log.i(LOG_TAG, "Distance: " + Double.toString(d));
         showMap();
     }
 
@@ -402,6 +443,8 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         Log.i(LOG_TAG, "Changing state to waiting.");
         mState = State.WAITING;
         mStateView.setText(getString(R.string.state_waiting));
+        mAccelValues = new ArrayList<>();
+        mAccelTimes = new ArrayList<>();
     }
 
     private void showMap() {
@@ -478,4 +521,24 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         }
     }
 
+    private double calcDistance() {
+        List<Vector3> velValues = new ArrayList<>();
+        List<Long> velTimes = new ArrayList<>();
+        for (int i = 1; i < mAccelValues.size(); i++) {
+            Vector3 a = mAccelValues.get(i);
+            Log.d(LOG_TAG, Long.toString(mAccelTimes.get(i)) + ", " + a.toString());
+            long dt = mAccelTimes.get(i) - mAccelTimes.get(i - 1);
+            Vector3 v = new Vector3(a.x()*dt, a.y()*dt, a.z()*dt);
+            velValues.add(v);
+            velTimes.add(mAccelTimes.get(i));
+        }
+        Vector3 finalPos = new Vector3(0,0,0);
+        for (int i = 1; i < velValues.size(); i++) {
+            Vector3 v = velValues.get(i);
+            long dt = velTimes.get(i) - velTimes.get(i - 1);
+            Vector3 p = new Vector3(v.x()*dt, v.y()*dt, v.z()*dt);
+            finalPos.add(p);
+        }
+        return finalPos.length();
+    }
 }

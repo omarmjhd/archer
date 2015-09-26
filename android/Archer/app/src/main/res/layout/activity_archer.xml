@@ -1,52 +1,88 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="apps.bunch.im.archer.ArcherActivity">
+    tools:context="apps.bunch.im.archer.ArcherActivity"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bow Strength"
+            android:id="@+id/strength_label" />
+
+        <SeekBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/seekBar"
+            android:layout_weight="1"
+            android:max="1000" />
+
+    </LinearLayout>
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/state_waiting"
         android:id="@+id/state"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:gravity="center_horizontal" />
 
-    <TextView
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phone Orientation"
+            android:id="@+id/orientation"
+            android:layout_below="@+id/state" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Myo Acceleration"
+            android:id="@+id/myo_acceleration"
+            android:layout_below="@+id/orientation" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Myo Orientation"
+            android:id="@+id/myo_orientation"
+            android:layout_below="@+id/myo_acceleration" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Expected Gravity"
+            android:id="@+id/gravity"
+            android:layout_below="@+id/myo_orientation" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Linear Acceleration"
+            android:id="@+id/linear_accel"
+            android:layout_below="@+id/gravity" />
+
+    </LinearLayout>
+
+    <ViewStub
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Phone Orientation"
-        android:id="@+id/orientation"
-        android:layout_below="@+id/state" />
+        android:id="@+id/viewStub"
+        android:layout_gravity="right" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Myo Acceleration"
-        android:id="@+id/myo_acceleration"
-        android:layout_below="@+id/orientation" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Myo Orientation"
-        android:id="@+id/myo_orientation"
-        android:layout_below="@+id/myo_acceleration" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Expected Gravity"
-        android:id="@+id/gravity"
-        android:layout_below="@+id/myo_orientation" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Linear Acceleration"
-        android:id="@+id/linear_accel"
-        android:layout_below="@+id/gravity" />
-
-</RelativeLayout>
+</LinearLayout>
