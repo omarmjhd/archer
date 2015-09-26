@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="apps.bunch.im.archer" >
+    package="apps.bunch.im.archer"
+    android:sharedUserId="apps.bunch.im.archer" >
+
+    <!-- We use sharedUserId to apply the ACCESS_MOCK_LOCATION permission to the application APK. -->
     // Required for communicating with the Myo device
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     // Required for sending usage data to Thalmic Labs
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
-    <!--
- The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
-         Google Maps Android API v2, but are recommended.
-    -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -25,11 +24,6 @@
             android:name=".ArcherActivity"
             android:label="@string/title_activity_archer"
             android:screenOrientation="portrait" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <meta-data
@@ -40,11 +34,19 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name=".ResultMapActivity"
             android:label="@string/title_activity_maps" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="apps.bunch.im.archer.ArcherActivity" />
+        </activity>
+        <activity
+            android:name=".TargetMapActivity"
+            android:label="@string/title_activity_choose_target" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 

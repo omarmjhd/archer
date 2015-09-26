@@ -3,37 +3,34 @@ package apps.bunch.im.archer;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity {
-
-    public static final String LOG_TAG = "MapsActivity";
-    public static final String TARGET_LONGITUDE = "im.bunch.apps.archer.TARGET_LONGITUDE";
-    public static final String TARGET_LATITUDE = "im.bunch.apps.archer.TARGET_LATITUDE";
+public class TargetMapActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private LatLng mHit;
+    private LatLng mTarget;
+    private Marker mTargetMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
-
-
-        Intent intent = getIntent();
-        Double longitude = intent.getDoubleExtra(TARGET_LONGITUDE, 0.0);
-        Double latitude = intent.getDoubleExtra(TARGET_LATITUDE, 0.0);
-
-        mHit = new LatLng(latitude, longitude);
-
-        Log.d(LOG_TAG, "Hit: " + mHit.toString());
-
+        setContentView(R.layout.activity_choose_target);
         setUpMapIfNeeded();
+
+        Button button = (Button) findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                launchArrow();
+            }
+        });
     }
 
     @Override
@@ -77,6 +74,40 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(mHit).title("Hit"));
+        mTargetMarker = mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(0, 0)).title("Target")
+                .draggable(true));
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                mTarget = latLng;
+                mTargetMarker.setPosition(mTarget);
+            }
+        });
+
+        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+
+            }
+        });
+    }
+
+    private void launchArrow() {
+        Intent intent = new Intent(this, ArcherActivity.class);
+        intent.putExtra(ResultMapActivity.TARGET_LATITUDE, mTarget.latitude);
+        intent.putExtra(ResultMapActivity.TARGET_LONGITUDE, mTarget.longitude);
+        startActivity(intent);
     }
 }

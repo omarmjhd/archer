@@ -2,10 +2,12 @@ package apps.bunch.im.archer;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -13,6 +15,10 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.thalmic.myo.AbstractDeviceListener;
 import com.thalmic.myo.Arm;
 import com.thalmic.myo.DeviceListener;
@@ -24,21 +30,43 @@ import com.thalmic.myo.Vector3;
 import com.thalmic.myo.XDirection;
 import com.thalmic.myo.scanner.ScanActivity;
 
-public class ArcherActivity extends Activity implements SensorEventListener {
+import javax.xml.transform.Result;
+
+public class ArcherActivity extends Activity implements SensorEventListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
     public static String LOG_TAG = "ArcherActivity";
+    public static String STATE_RESOLVING_KEY = "StateResolvingKey";
+    public static String TARGET_LATITUDE_KEY = "TargetLatitudeKey";
+    public static String TARGET_LONGITUDE_KEY = "TargetLongitudeKey";
+    private static final int REQUEST_RESOLVE_ERROR = 1001;
 
     public enum State {
         WAITING, PULLING, FLYING
     }
 
-    private TextView mStateView, mOrientation, mMyoAcceleration, mMyoOrientation, mGravity, mLinearAcceleration;
+    private double mTargetLong;
+    private double mTargetLat;
+
+    private TextView mStateView;
+    private TextView mOrientation;
+    private TextView mMyoAcceleration;
+    private TextView mMyoOrientation;
+    private TextView mGravity;
+    private TextView mLinearAcceleration;
+    private boolean mMyoConnected = false;
+    private boolean mMyoSynced = false;
     private State mState = State.WAITING;
+    private LocationRequest mLocationRequest;
+    private GoogleApiClient mGoogleApiClient;
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometer, mGeomagnetic;
     private float[] gravity = new float[3];
     private float[] geomagnetic = new float[3];
+    private Location mCurrentLocation;
+    private boolean mResolvingError = false;
 
     private Vector3 lastAcceleration;
 
@@ -51,6 +79,7 @@ public class ArcherActivity extends Activity implements SensorEventListener {
         public void onConnect(Myo myo, long timestamp) {
             // Set the text color of the text view to cyan when a Myo connects.
             Log.d(LOG_TAG, "Myo connected.");
+            mMyoConnected = true;
         }
 
         // onDisconnect() is called whenever a Myo has been disconnected.
@@ -58,6 +87,7 @@ public class ArcherActivity extends Activity implements SensorEventListener {
         public void onDisconnect(Myo myo, long timestamp) {
             // Set the text color of the text view to red when a Myo disconnects.
             Log.d(LOG_TAG, "Myo disconnected.");
+            mMyoConnected = false;
         }
 
         // onArmSync() is called whenever Myo has recognized a Sync Gesture after someone has put it on their
@@ -66,6 +96,7 @@ public class ArcherActivity extends Activity implements SensorEventListener {
         public void onArmSync(Myo myo, long timestamp, Arm arm, XDirection xDirection) {
             Log.d(LOG_TAG, getString(myo.getArm() == Arm.LEFT ?
                     R.string.arm_left : R.string.arm_right));
+            mMyoSynced = true;
         }
 
         // onArmUnsync() is called whenever Myo has detected that it was moved from a stable position on a person's arm after
@@ -74,6 +105,7 @@ public class ArcherActivity extends Activity implements SensorEventListener {
         @Override
         public void onArmUnsync(Myo myo, long timestamp) {
             Log.d(LOG_TAG, "Myo unsynced.");
+            mMyoSynced = false;
         }
 
         // onUnlock() is called whenever a synced Myo has been unlocked. Under the standard locking
@@ -150,6 +182,10 @@ public class ArcherActivity extends Activity implements SensorEventListener {
                     Log.i(LOG_TAG, "Unknown pose.");
                     break;
                 case REST:
+                    Log.i(LOG_TAG, "Rest pose.");
+                    if (mState == State.PULLING) {
+                        setStateFlying();
+                    }
                     break;
                 case DOUBLE_TAP:
                     Log.i(LOG_TAG, "Double tap pose.");
@@ -226,6 +262,39 @@ public class ArcherActivity extends Activity implements SensorEventListener {
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mGeomagnetic = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        // Create a GoogleApiClient instance
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
+
+        // get this data from the intent
+        Intent intent = getIntent();
+        if (intent != null && intent.getExtras() != null) {
+            mTargetLong = intent.getDoubleExtra(ResultMapActivity.TARGET_LONGITUDE, 0.0);
+            mTargetLat = intent.getDoubleExtra(ResultMapActivity.TARGET_LATITUDE, 0.0);
+        }
+
+        if (!mMyoConnected) {
+            // automatically show connect dialog
+            onScanActionSelected();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!mResolvingError) {  // more about this later
+            mGoogleApiClient.connect();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
     }
 
     @Override
@@ -320,8 +389,7 @@ public class ArcherActivity extends Activity implements SensorEventListener {
         Log.i(LOG_TAG, "Changing state to flying.");
         mState = State.FLYING;
         mStateView.setText(getString(R.string.state_flying));
-
-        showTarget();
+        showMap();
     }
 
     private void setStatePulling() {
@@ -336,10 +404,78 @@ public class ArcherActivity extends Activity implements SensorEventListener {
         mStateView.setText(getString(R.string.state_waiting));
     }
 
-    private void showTarget() {
-        Intent intent = new Intent(this, MapsActivity.class);
-        intent.putExtra(MapsActivity.TARGET_LATITUDE, 33.948);
-        intent.putExtra(MapsActivity.TARGET_LONGITUDE, -83.375);
+    private void showMap() {
+
+        Log.i(LOG_TAG, "Target: (" + Double.toString(mTargetLat) + ", "
+                + Double.toString(mTargetLong) + ")");
+        Intent intent = new Intent(this, ResultMapActivity.class);
+        intent.putExtra(ResultMapActivity.TARGET_LATITUDE, mTargetLat);
+        intent.putExtra(ResultMapActivity.TARGET_LONGITUDE, mTargetLong);
+        intent.putExtra(ResultMapActivity.SOURCE_LATITUDE, mCurrentLocation.getLatitude());
+        intent.putExtra(ResultMapActivity.SOURCE_LONGITUDE, mCurrentLocation.getLongitude());
         startActivity(intent);
     }
+
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+        Log.i(LOG_TAG, mCurrentLocation.toString());
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        if (mResolvingError) {
+            // Already attempting to resolve an error.
+            return;
+        } else if (result.hasResolution()) {
+            try {
+                mResolvingError = true;
+                result.startResolutionForResult(this, REQUEST_RESOLVE_ERROR);
+            } catch (IntentSender.SendIntentException e) {
+                // There was an error with the resolution intent. Try again.
+                mGoogleApiClient.connect();
+            }
+        } else {
+            // Show dialog using GoogleApiAvailability.getErrorDialog()
+            // TODO: handle error
+            Log.e(LOG_TAG, "Error connecting to Google API");
+            mResolvingError = true;
+        }
+    }
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putBoolean(STATE_RESOLVING_KEY, mResolvingError);
+        savedInstanceState.putDouble(TARGET_LATITUDE_KEY, mTargetLat);
+        savedInstanceState.putDouble(TARGET_LONGITUDE_KEY, mTargetLong);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState.keySet().contains(STATE_RESOLVING_KEY)) {
+            mResolvingError = savedInstanceState.getBoolean(STATE_RESOLVING_KEY);
+        }
+        if (savedInstanceState.keySet().contains(TARGET_LATITUDE_KEY)) {
+            mTargetLat = savedInstanceState.getDouble(TARGET_LATITUDE_KEY);
+        }
+        if (savedInstanceState.keySet().contains(TARGET_LONGITUDE_KEY)) {
+            mTargetLong = savedInstanceState.getDouble(TARGET_LONGITUDE_KEY);
+        }
+    }
+
 }
