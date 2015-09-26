@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.VelocityTracker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,12 +30,6 @@ import com.thalmic.myo.Vector3;
 import com.thalmic.myo.XDirection;
 import com.thalmic.myo.scanner.ScanActivity;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
-
-import javax.xml.transform.Result;
-
 public class ArcherActivity extends Activity implements SensorEventListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
@@ -45,7 +38,6 @@ public class ArcherActivity extends Activity implements SensorEventListener,
     public static String STATE_RESOLVING_KEY = "StateResolvingKey";
     public static String TARGET_LATITUDE_KEY = "TargetLatitudeKey";
     public static String TARGET_LONGITUDE_KEY = "TargetLongitudeKey";
-    public static double ACCEL_UNIT_CONVERSION = (0.98 / 1000); // convert to meters
     private static final int REQUEST_RESOLVE_ERROR = 1001;
 
     public enum State {
@@ -75,9 +67,8 @@ public class ArcherActivity extends Activity implements SensorEventListener,
     private boolean mResolvingError = false;
 
     private Vector3 mLastAcceleration;
-    private long mlastAccelTime;
-    private List<Vector3> mAccelValues;
-    private List<Long> mAccelTimes;
+
+    private long mStartPullTime, mEndPullTime;
 
     // Classes that inherit from AbstractDeviceListener can be used to receive events from Myo devices.
     // If you do not override an event, the default behavior is to do nothing.
@@ -136,7 +127,6 @@ public class ArcherActivity extends Activity implements SensorEventListener,
             //Log.d(LOG_TAG, "Acceleration: " + accel.toString());
             mMyoAcceleration.setText(String.format("Myo Accel (x,y,z) => %.5f, %.5f, %.5f", accel.x(), accel.y(), accel.z()));
             mLastAcceleration = accel;
-            mlastAccelTime = timestamp;
         }
 
         @Override
@@ -189,11 +179,6 @@ public class ArcherActivity extends Activity implements SensorEventListener,
                             accel.x(), accel.y(), accel.z()
                     )
             );
-
-            if (mState == State.PULLING) {
-                mAccelValues.add(accel);
-                mAccelTimes.add(mlastAccelTime);
-            }
         }
 
         private Vector3 calcLinearAccel(Vector3 g, Vector3 accel) {
@@ -203,12 +188,10 @@ public class ArcherActivity extends Activity implements SensorEventListener,
                 //linear.multiply(ACCEL_UNIT_CONVERSION);
                 Vector3 linear = new Vector3(accel);
                 linear.subtract(g);
-                linear.multiply(ACCEL_UNIT_CONVERSION);
                 return linear;
             }
             return new Vector3(0,0,0);
         }
-
 
         // onPose() is called whenever a Myo provides a new pose.
         @Override
@@ -427,15 +410,15 @@ public class ArcherActivity extends Activity implements SensorEventListener,
 
     private void setStateFlying() {
         Log.i(LOG_TAG, "Changing state to flying.");
+        mEndPullTime = System.currentTimeMillis();
         mState = State.FLYING;
         mStateView.setText(getString(R.string.state_flying));
-        double d = calcDistance();
-        Log.i(LOG_TAG, "Distance: " + Double.toString(d));
         showMap();
     }
 
     private void setStatePulling() {
         Log.i(LOG_TAG, "Changing state to pulling.");
+        mStartPullTime = System.currentTimeMillis();
         mState = State.PULLING;
         mStateView.setText(getString(R.string.state_pulling));
     }
@@ -444,8 +427,6 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         Log.i(LOG_TAG, "Changing state to waiting.");
         mState = State.WAITING;
         mStateView.setText(getString(R.string.state_waiting));
-        mAccelValues = new ArrayList<>();
-        mAccelTimes = new ArrayList<>();
     }
 
     private void showMap() {
@@ -520,69 +501,5 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         if (savedInstanceState.keySet().contains(TARGET_LONGITUDE_KEY)) {
             mTargetLong = savedInstanceState.getDouble(TARGET_LONGITUDE_KEY);
         }
-    }
-
-    private double calcDistance() {
-        List<Vector3> velValues = new ArrayList<>();
-        List<Long> velTimes = new ArrayList<>();
-        for (int i = 1; i < mAccelValues.size(); i++) {
-            Vector3 a = mAccelValues.get(i);
-            Log.d(LOG_TAG, Long.toString(mAccelTimes.get(i)) + ", " + a.toString());
-            long dt = mAccelTimes.get(i) - mAccelTimes.get(i - 1);
-            Vector3 v = new Vector3(a.x()*dt, a.y()*dt, a.z()*dt);
-            velValues.add(v);
-            velTimes.add(mAccelTimes.get(i));
-        }
-        Vector3 finalPos = new Vector3(0,0,0);
-        for (int i = 1; i < velValues.size(); i++) {
-            Vector3 v = velValues.get(i);
-            long dt = velTimes.get(i) - velTimes.get(i - 1);
-            Vector3 p = new Vector3(v.x()*dt, v.y()*dt, v.z()*dt);
-            finalPos.add(p);
-        }
-        velValues = new ArrayList<>();
-        velTimes = new ArrayList<>();
-        List<Vector3> mAverageAccel = movingAverage(mAccelValues, 3);
-        for (int i = 1; i < mAverageAccel.size(); i++) {
-            Vector3 a = mAverageAccel.get(i);
-            //Log.d(LOG_TAG, Long.toString(mAccelTimes.get(i)) + ", " + a.toString());
-            long dt = mAccelTimes.get(i) - mAccelTimes.get(i - 1);
-            Vector3 v = new Vector3(a.x()*dt, a.y()*dt, a.z()*dt);
-            velValues.add(v);
-            velTimes.add(mAccelTimes.get(i));
-        }
-        Vector3 avgFinalPos = new Vector3(0,0,0);
-        for (int i = 1; i < velValues.size(); i++) {
-            Vector3 v = velValues.get(i);
-            long dt = velTimes.get(i) - velTimes.get(i - 1);
-            Vector3 p = new Vector3(v.x()*dt, v.y()*dt, v.z()*dt);
-            avgFinalPos.add(p);
-        }
-        Log.d(LOG_TAG, "Average Distance: " + Double.toString(avgFinalPos.length()));
-        return finalPos.length();
-    }
-
-    private List<Vector3> movingAverage(List<Vector3> accels, int sampleSize) {
-        List<Vector3> result = new ArrayList<>(accels.size());
-        if (accels.size() >= sampleSize) {
-            for (int i = 0; i < accels.size(); i++) {
-                int count = 0;
-                Vector3 avg = new Vector3(accels.get(i));
-                for (int j = i; j < i + sampleSize; j++) {
-                    if ((j >= accels.size())) {
-                        break;
-                    }
-                    avg.add(accels.get(i));
-                    count++;
-                }
-                avg.divide((double) count);
-                result.add(avg);
-            }
-            for (Vector3 current: result) {
-                Log.d(LOG_TAG, current.toString());
-            }
-            return result;
-        }
-        return accels;
     }
 }
