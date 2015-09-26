@@ -525,7 +525,6 @@ public class ArcherActivity extends Activity implements SensorEventListener,
     private double calcDistance() {
         List<Vector3> velValues = new ArrayList<>();
         List<Long> velTimes = new ArrayList<>();
-        List<Vector3> mAverageAccel = movingAverage(mAccelValues, 3);
         for (int i = 1; i < mAccelValues.size(); i++) {
             Vector3 a = mAccelValues.get(i);
             Log.d(LOG_TAG, Long.toString(mAccelTimes.get(i)) + ", " + a.toString());
@@ -541,6 +540,25 @@ public class ArcherActivity extends Activity implements SensorEventListener,
             Vector3 p = new Vector3(v.x()*dt, v.y()*dt, v.z()*dt);
             finalPos.add(p);
         }
+        velValues = new ArrayList<>();
+        velTimes = new ArrayList<>();
+        List<Vector3> mAverageAccel = movingAverage(mAccelValues, 3);
+        for (int i = 1; i < mAverageAccel.size(); i++) {
+            Vector3 a = mAverageAccel.get(i);
+            //Log.d(LOG_TAG, Long.toString(mAccelTimes.get(i)) + ", " + a.toString());
+            long dt = mAccelTimes.get(i) - mAccelTimes.get(i - 1);
+            Vector3 v = new Vector3(a.x()*dt, a.y()*dt, a.z()*dt);
+            velValues.add(v);
+            velTimes.add(mAccelTimes.get(i));
+        }
+        Vector3 avgFinalPos = new Vector3(0,0,0);
+        for (int i = 1; i < velValues.size(); i++) {
+            Vector3 v = velValues.get(i);
+            long dt = velTimes.get(i) - velTimes.get(i - 1);
+            Vector3 p = new Vector3(v.x()*dt, v.y()*dt, v.z()*dt);
+            avgFinalPos.add(p);
+        }
+        Log.d(LOG_TAG, "Average Distance: " + Double.toString(avgFinalPos.length()));
         return finalPos.length();
     }
 
