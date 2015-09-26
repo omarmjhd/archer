@@ -1,8 +1,14 @@
 package apps.bunch.im.archer;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -11,6 +17,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -128,6 +135,7 @@ public class ArcherActivity extends Activity implements SensorEventListener {
                     Log.i(LOG_TAG, "Unknown pose.");
                     break;
                 case REST:
+                    break;
                 case DOUBLE_TAP:
                     Log.i(LOG_TAG, "Double tap pose.");
                     if (mState == State.PULLING) {
@@ -267,8 +275,6 @@ public class ArcherActivity extends Activity implements SensorEventListener {
         }
     }
 
-
-
     private void onScanActionSelected() {
         // Launch the ScanActivity to scan for Myos to connect to.
         Intent intent = new Intent(this, ScanActivity.class);
@@ -279,6 +285,8 @@ public class ArcherActivity extends Activity implements SensorEventListener {
         Log.i(LOG_TAG, "Changing state to flying.");
         mState = State.FLYING;
         mStateView.setText(getString(R.string.state_flying));
+
+        showTarget();
     }
 
     private void setStatePulling() {
@@ -293,4 +301,10 @@ public class ArcherActivity extends Activity implements SensorEventListener {
         mStateView.setText(getString(R.string.state_waiting));
     }
 
+    private void showTarget() {
+        Intent intent = new Intent(this, MapsActivity.class);
+        intent.putExtra(MapsActivity.TARGET_LATITUDE, 33.948);
+        intent.putExtra(MapsActivity.TARGET_LONGITUDE, -83.375);
+        startActivity(intent);
+    }
 }
