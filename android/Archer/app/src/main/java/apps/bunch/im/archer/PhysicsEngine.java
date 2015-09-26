@@ -1,5 +1,7 @@
 package apps.bunch.im.archer;
 
+import android.util.Log;
+
 import com.thalmic.myo.Arm;
 
 /**
@@ -26,7 +28,8 @@ public class PhysicsEngine {
      * @return velocity at which the arrow leaves the bow
      */
     private static double velocity(double acceleration) {
-        return Math.sqrt((double) 2 * acceleration);
+        //return Math.sqrt((double) 2 * acceleration);
+        return 100;
     }
 
     /**
@@ -36,7 +39,8 @@ public class PhysicsEngine {
      * @return time that arrow is in the air
      */
     private static double time(double velocity, double radians) {
-        return (velocity * Math.sin(radians)) / 9.8;
+        //return (velocity * Math.sin(radians)) / 9.8;
+        return 600;
     }
 
     /**
@@ -90,6 +94,11 @@ public class PhysicsEngine {
         double arrowAngle = arrowAngle(orientation);
         double time = time(velocity, arrowAngle);
 
+        Log.d("Physics", "Distance accel: " + Double.toString(acceleration));
+        Log.d("Physics", "Distance vel: " + Double.toString(velocity));
+        Log.d("Physics", "Distance arrowAngle: " + Double.toString(arrowAngle));
+        Log.d("Physics", "Distance time: " + Double.toString(time));
+
         return distance(time, velocity, arrowAngle);
 
     }
@@ -98,6 +107,8 @@ public class PhysicsEngine {
      *
      * Method follows this formula: Math.asin( Math.sin(φ1)*Math.cos(d/R) +
      * Math.cos(φ1)*Math.sin(d/R)*Math.cos(brng) );
+     *
+     * lat2: =ASIN(SIN(lat1)*COS(d/R) + COS(lat1)*SIN(d/R)*COS(brng))
      *
      * @param latitude latitude of current location
      * @param bearing bearing that the phone is pointed at
@@ -108,7 +119,7 @@ public class PhysicsEngine {
                                                double distance) {
 
         return Math.asin(Math.sin(Math.toRadians(latitude)) * Math.cos((distance / metersInKilometer) / earthRadius) +
-                Math.cos(Math.toRadians(latitude)) * Math.sin((distance / metersInKilometer) / earthRadius) * Math.cos(Math.toRadians(bearing)));
+                Math.cos(Math.toRadians(latitude)) * Math.sin((distance / metersInKilometer) / earthRadius) * Math.cos(bearing));
 
     }
 
@@ -116,6 +127,8 @@ public class PhysicsEngine {
      *
      * Method follows this formula: λ1 + Math.atan2(Math.sin(brng)*Math.sin(d/R)*Math.cos(φ1),
      * Math.cos(d/R)-Math.sin(φ1)*Math.sin(φ2));
+     *
+     * lon2: =lon1 + ATAN2(COS(d/R)-SIN(lat1)*SIN(lat2), SIN(brng)*SIN(d/R)*COS(lat1))
      *
      * @param latitudeInitial latitude of current location
      * @param longitude longitude of current position
@@ -129,7 +142,7 @@ public class PhysicsEngine {
         double latitudeFinal = arrowLandingLatitude(latitudeInitial, bearing, distance);
 
         return longitude + Math.atan2(Math.sin(Math.toRadians(bearing)) * Math.sin((distance / metersInKilometer) / earthRadius ) * Math.cos(Math.toRadians(latitudeInitial)),
-                Math.cos((distance / metersInKilometer) / earthRadius) - Math.sin(Math.toRadians(latitudeInitial)) * Math.sin(Math.toRadians(latitudeFinal)));
+                Math.cos((distance / metersInKilometer) / earthRadius) - Math.sin(Math.toRadians(latitudeInitial)) * Math.sin(latitudeFinal));
 
     }
 

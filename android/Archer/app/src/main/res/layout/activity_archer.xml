@@ -12,19 +12,12 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Bow Strength"
-            android:id="@+id/strength_label" />
-
-        <SeekBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/seekBar"
-            android:layout_weight="1"
-            android:max="1000" />
-
+            android:id="@+id/strength_bar"
+            android:layout_gravity="center_horizontal" />
     </LinearLayout>
 
     <TextView

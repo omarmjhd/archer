@@ -12,7 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.VelocityTracker;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +43,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
     public static String HIT_LONGITUDE_KEY = "HitLongitudeKey";
     public static double ACCEL_UNIT_CONVERSION = (0.98 / 1000); // convert to meters
     private static final int REQUEST_RESOLVE_ERROR = 1001;
+    private static final int MAX_DISPLAY_FORCE = 100; // max force to display (can go higher)
 
     public enum State {
         WAITING, PULLING, FLYING
@@ -54,11 +55,12 @@ public class ArcherActivity extends Activity implements SensorEventListener,
     private double mHitLat;
 
     private TextView mStateView;
-    private TextView mOrientation;
+    private TextView mOrientationView;
     private TextView mMyoAcceleration;
     private TextView mMyoOrientation;
     private TextView mGravity;
     private TextView mLinearAcceleration;
+    private ProgressBar mStrengthBar;
     private boolean mMyoConnected = false;
     private boolean mMyoSynced = false;
     private State mState;
@@ -69,10 +71,9 @@ public class ArcherActivity extends Activity implements SensorEventListener,
     private Sensor mAccelerometer, mGeomagnetic;
     private float[] gravity = new float[3];
     private float[] geomagnetic = new float[3];
+    private float[] mOrientation = new float[3];
     private Location mCurrentLocation;
     private boolean mResolvingError = false;
-
-    private Vector3 mLastAcceleration;
 
     private long mStartPullTime, mEndPullTime;
 
@@ -130,9 +131,11 @@ public class ArcherActivity extends Activity implements SensorEventListener,
 
         @Override
         public void onAccelerometerData(Myo myo, long timestamp, Vector3 accel) {
-            //Log.d(LOG_TAG, "Acceleration: " + accel.toString());
-            mMyoAcceleration.setText(String.format("Myo Accel (x,y,z) => %.5f, %.5f, %.5f", accel.x(), accel.y(), accel.z()));
-            mLastAcceleration = accel;
+            // update latest timestamp here
+            if (mState == State.PULLING) {
+                mEndPullTime = System.currentTimeMillis();
+                updateStrengthBar();
+            }
         }
 
         @Override
@@ -165,7 +168,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
             mTextView.setRotation(roll);
             mTextView.setRotationX(pitch);
             mTextView.setRotationY(yaw);
-            */
+
             mMyoOrientation.setText(
                 String.format(
                     "Myo Orient (y,p,r) => %.2f, %.2f, %.2f",
@@ -185,6 +188,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
                             accel.x(), accel.y(), accel.z()
                     )
             );
+            */
         }
 
         private Vector3 calcLinearAccel(Vector3 g, Vector3 accel) {
@@ -268,11 +272,12 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         setContentView(R.layout.activity_archer);
 
         mStateView = (TextView) findViewById(R.id.state);
-        mOrientation = (TextView) findViewById(R.id.orientation);
+        mOrientationView = (TextView) findViewById(R.id.orientation);
         mMyoAcceleration = (TextView) findViewById(R.id.myo_acceleration);
         mMyoOrientation = (TextView) findViewById(R.id.myo_orientation);
         mGravity = (TextView) findViewById(R.id.gravity);
         mLinearAcceleration = (TextView) findViewById(R.id.linear_accel);
+        mStrengthBar = (ProgressBar) findViewById(R.id.strength_bar);
 
         // First, we initialize the Hub singleton with an application identifier.
         Hub hub = Hub.getInstance();
@@ -362,9 +367,10 @@ public class ArcherActivity extends Activity implements SensorEventListener,
             float I[] = new float[9];
 
             if (SensorManager.getRotationMatrix(R, I, gravity, geomagnetic)) {
-                float[] foo = new float[3];
-                SensorManager.getOrientation(R, foo);
-                mOrientation.setText(String.format("Orientation (y,p,r) => %.2f, %.2f, %.2f", foo[0], foo[1], foo[2]));
+                mOrientation = new float[3];
+                SensorManager.getOrientation(R, mOrientation);
+                mOrientationView.setText(String.format("Orientation (y,p,r) => %.2f, %.2f, %.2f",
+                        mOrientation[0], mOrientation[1], mOrientation[2]));
             }
         }
 
@@ -449,12 +455,25 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         // force made up = 100
         // distance drawn made up = 10
         // orientation made up = [0.8, -1.4, 0.26]
-        float[] orientationInvent = new float[3];
-        orientationInvent[0] = (float) 0.8;
-        orientationInvent[1] = (float) -1.4;
-        orientationInvent[2] = (float) 0.26;
-        mHitLat = PhysicsEngine.arrowFlightLatitude(mCurrentLocation.getLatitude(), 100, PhysicsEngine.mass, orientationInvent, Arm.RIGHT);  //changed myo.getArm() to Arm.RIGHT
-        mHitLong = PhysicsEngine.arrowFlightLongitude(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude(), 100, PhysicsEngine.mass, orientationInvent, Arm.RIGHT);
+        mHitLong = PhysicsEngine.arrowFlightLongitude(
+                mCurrentLocation.getLatitude(),
+                mCurrentLocation.getLongitude(),
+                timeToForce(mStartPullTime, mEndPullTime),
+                mOrientation,
+                Arm.RIGHT
+        );
+        mHitLat = PhysicsEngine.arrowFlightLatitude(
+                mCurrentLocation.getLatitude(),
+                timeToForce(mStartPullTime, mEndPullTime),
+                mOrientation,
+                Arm.RIGHT
+        );
+        Log.i(LOG_TAG, "Using force: " + timeToForce(mStartPullTime, mEndPullTime));
+        Log.i(LOG_TAG, "Using orientation:" + Double.toString(mOrientation[0]) + ", "
+                + Double.toString(mOrientation[1]) + ", "
+                + Double.toString(mOrientation[2]));
+        Log.i(LOG_TAG, "Sending hit long: " + Double.toString(mHitLong));
+        Log.i(LOG_TAG, "Sending hit lat: " + Double.toString(mHitLat));
         intent.putExtra(ResultMapActivity.HIT_LATITUDE, mHitLat);
         intent.putExtra(ResultMapActivity.HIT_LONGITUDE, mHitLong);
         startActivity(intent);
@@ -524,7 +543,15 @@ public class ArcherActivity extends Activity implements SensorEventListener,
 
     private double timeToForce(long startTime, long endTime) {
         double deltaTime = (double) (endTime - startTime) / 1000;
-        Log.d(LOG_TAG, Double.toString(deltaTime));
-        return deltaTime;
+        Log.d(LOG_TAG, Double.toString(10*deltaTime));
+        return 1000*deltaTime;
+    }
+
+    private void updateStrengthBar() {
+        double force = timeToForce(mStartPullTime, mEndPullTime);
+        int percent = (int) Math.round(
+            Math.min(MAX_DISPLAY_FORCE, force / MAX_DISPLAY_FORCE * 100)
+        );
+        mStrengthBar.setProgress(percent);
     }
 }
