@@ -96,6 +96,12 @@ public class PhysicsEngine {
         }
     }
 
+    /**
+     * @param source the source location LatLng object
+     * @param force the force to fire the arrow with, in Newtons
+     * @param orientation the orientation of the bow, in radians (y,p,r)
+     * @return the destination LatLng object
+     */
     public static LatLng arrowFlightLatLng(LatLng source, double force, float[] orientation) {
         return SphericalUtil.computeOffset(source, distanceTraveled(force, orientation), Math.toDegrees(orientation[0]));
     }
