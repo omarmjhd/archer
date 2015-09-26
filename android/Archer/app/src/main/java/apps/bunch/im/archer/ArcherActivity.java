@@ -24,9 +24,6 @@ import com.thalmic.myo.Vector3;
 import com.thalmic.myo.XDirection;
 import com.thalmic.myo.scanner.ScanActivity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ArcherActivity extends Activity implements SensorEventListener {
 
     public static String LOG_TAG = "ArcherActivity";
@@ -43,12 +40,7 @@ public class ArcherActivity extends Activity implements SensorEventListener {
     private float[] gravity = new float[3];
     private float[] geomagnetic = new float[3];
 
-    private List<Vector3> accelerations = new ArrayList<Vector3>();
-    private List<Long> dt = new ArrayList<Long>();
-
-    private Vector3 lastAccel, lastGravity;
-
-    private long lastTime = 0;
+    private Vector3 lastAcceleration;
 
     // Classes that inherit from AbstractDeviceListener can be used to receive events from Myo devices.
     // If you do not override an event, the default behavior is to do nothing.
@@ -102,12 +94,7 @@ public class ArcherActivity extends Activity implements SensorEventListener {
         public void onAccelerometerData(Myo myo, long timestamp, Vector3 accel) {
             //Log.d(LOG_TAG, "Acceleration: " + accel.toString());
             mMyoAcceleration.setText(String.format("Myo Accel (x,y,z) => %.5f, %.5f, %.5f", accel.x(), accel.y(), accel.z()));
-            if (mState == State.PULLING) {
-                accelerations.add(accel);
-                dt.add(timestamp - lastTime);
-            }
-            lastTime = timestamp;
-            lastAccel = accel;
+            lastAcceleration = accel;
         }
 
         @Override
@@ -134,7 +121,6 @@ public class ArcherActivity extends Activity implements SensorEventListener {
                     2 * (rotation.w() * rotation.x() + rotation.y() * rotation.z()),
                     rotation.w() * rotation.w() - rotation.x() * rotation.x() - rotation.y() * rotation.y() + rotation.z() * rotation.z()
             );
-            lastGravity = g;
             /*
             // Next, we apply a rotation to the text view using the roll, pitch, and yaw.
             mTextView.setRotation(roll);
@@ -143,7 +129,7 @@ public class ArcherActivity extends Activity implements SensorEventListener {
             */
             mMyoOrientation.setText(String.format("Myo Orient (y,p,r) => %.2f, %.2f, %.2f", yaw, pitch, roll));
             mGravity.setText(String.format("Gravity (x,y,z) => %.4f, %.4f, %.4f", g.x(), g.y(), g.z()));
-            setAccelerationDataNullGravity(lastGravity, lastAccel);
+            setAccelerationDataNullGravity(g, lastAcceleration);
         }
 
         private void setAccelerationDataNullGravity(Vector3 g, Vector3 accel) {
@@ -175,7 +161,6 @@ public class ArcherActivity extends Activity implements SensorEventListener {
                     Log.i(LOG_TAG, "Fist pose.");
                     if (mState == State.WAITING) {
                         setStatePulling();
-                        lastTime = timestamp;
                     }
                     break;
                 case WAVE_IN:
@@ -248,6 +233,9 @@ public class ArcherActivity extends Activity implements SensorEventListener {
         super.onResume();
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         mSensorManager.registerListener(this, mGeomagnetic, SensorManager.SENSOR_DELAY_NORMAL);
+        if (mState == State.FLYING) {
+            setStateWaiting();
+        }
     }
 
     @Override
