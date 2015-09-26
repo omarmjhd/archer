@@ -23,6 +23,7 @@ public class ResultMapActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private LatLng mHit;
+    private LatLng mTarget;
     private LatLng mSource;
 
     @Override
@@ -31,12 +32,15 @@ public class ResultMapActivity extends FragmentActivity {
         setContentView(R.layout.activity_result_target);
 
         Intent intent = getIntent();
-        Double hitLong = intent.getDoubleExtra(TARGET_LONGITUDE, 0.0);
-        Double hitLat = intent.getDoubleExtra(TARGET_LATITUDE, 0.0);
+        Double hitLong = intent.getDoubleExtra(HIT_LONGITUDE, 0.0);
+        Double hitLat = intent.getDoubleExtra(HIT_LATITUDE, 0.0);
+        Double targetLong = intent.getDoubleExtra(TARGET_LONGITUDE, 0.0);
+        Double targetLat = intent.getDoubleExtra(TARGET_LATITUDE, 0.0);
         Double srcLong = intent.getDoubleExtra(SOURCE_LONGITUDE, 0.0);
         Double srcLat = intent.getDoubleExtra(SOURCE_LATITUDE, 0.0);
         mHit = new LatLng(hitLat, hitLong);
         mSource = new LatLng(srcLat, srcLong);
+        mTarget = new LatLng(targetLat, targetLong);
 
         setUpMapIfNeeded();
         //mMap.setMyLocationEnabled(true);
@@ -86,6 +90,7 @@ public class ResultMapActivity extends FragmentActivity {
     private void setUpMap() {
 
         Log.d(LOG_TAG, "You: " + mSource.toString());
+        Log.d(LOG_TAG, "Target: " + mTarget.toString());
         Log.d(LOG_TAG, "Hit: " + mHit.toString());
 
         MarkerOptions hitMarker = new MarkerOptions().position(mHit).icon(
@@ -96,7 +101,12 @@ public class ResultMapActivity extends FragmentActivity {
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
         ).title("You");
 
+        MarkerOptions targetMarker = new MarkerOptions().position(mTarget).icon(
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+        ).title("Target");
+
         mMap.addMarker(hitMarker);
         mMap.addMarker(srcMarker);
+        mMap.addMarker(targetMarker);
     }
 }

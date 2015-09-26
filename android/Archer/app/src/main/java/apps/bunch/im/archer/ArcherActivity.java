@@ -469,8 +469,10 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         orientationInvent[0] = (float) 0.8;
         orientationInvent[1] = (float) -1.4;
         orientationInvent[2] = (float) 0.26;
-        intent.putExtra(ResultMapActivity.HIT_LATITUDE, PhysicsEngine.arrowFlightLatitude(mCurrentLocation.getLatitude(), 100, PhysicsEngine.mass, orientationInvent, Arm.RIGHT)); //changed myo.getArm() to Arm.RIGHT
-        intent.putExtra(ResultMapActivity.HIT_LONGITUDE, PhysicsEngine.arrowFlightLongitude(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude(), 100, PhysicsEngine.mass, orientationInvent, Arm.RIGHT));
+        mHitLat = PhysicsEngine.arrowFlightLatitude(mCurrentLocation.getLatitude(), 100, PhysicsEngine.mass, orientationInvent, Arm.RIGHT);  //changed myo.getArm() to Arm.RIGHT
+        mHitLong = PhysicsEngine.arrowFlightLongitude(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude(), 100, PhysicsEngine.mass, orientationInvent, Arm.RIGHT);
+        intent.putExtra(ResultMapActivity.HIT_LATITUDE, mHitLat);
+        intent.putExtra(ResultMapActivity.HIT_LONGITUDE, mHitLong);
         startActivity(intent);
     }
 
