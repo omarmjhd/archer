@@ -81,11 +81,19 @@ public class PhysicsEngine {
     //this is for angle of launch (shoulder tilt)
 
     /**
+     *
+     * 2Pi logic is to fix negatives
+     *
      * @param angles angles vector that contains azimuth, pitch and roll
      * @return the pitch, the angle at which the arrow leaves the bow in radians
      */
     private static double arrowAngle(float[] angles) {
-        return angles[1];
+
+        if (angles[1] < 0) {
+            return 2 * Math.PI + angles[1];
+        } else {
+            return angles[1];
+        }
     }
 
     public static LatLng arrowFlightLatLng(LatLng source, double force, float[] orientation) {
