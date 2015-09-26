@@ -111,12 +111,13 @@ public class ResultMapActivity extends FragmentActivity {
         mMap.addMarker(hitMarker);
         mMap.addMarker(srcMarker);
         mMap.addMarker(targetMarker);
+        mMap.addCircle(new CircleOptions().center(mTarget));
 
-        if (distanceCalculation() < 50000) { //abitrarily high to test
+        /*if (distanceCalculation() < 50000) { //abitrarily high to test
 
-            mMap.addCircle(new CircleOptions().center(mTarget));
 
-        }
+
+        }*/
     }
 
     private float distanceCalculation() {
