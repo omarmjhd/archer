@@ -9,15 +9,14 @@ public class PhysicsEngine {
 
     private static final double earthRadius = 6371;
     private static final double metersInKilometer = 1000;
-    //private static final double mass = MASS TBD;
+    public static final double mass = 500;
 
     /**
      *
      * @param force force that arrow is exerting
-     * @param mass mass of the arrow
      * @return acceleration of the arrow
      */
-    private static double acceleration(double force, double mass) {
+    private static double acceleration(double force) {
         return force / mass;
     }
 
@@ -80,16 +79,15 @@ public class PhysicsEngine {
     /**
      *
      * @param force force of arrow's motion
-     * @param mass mass of arrow
      * @param distanceDrawn distance that the arrow is drawn
      * @param orientation orientation array of the phone
      * @return distanceTraveled, the distance traveled by an arrow who's force, mass, distanceDrawn and
      * angle (in radians) are given as inputs
      */
-    private static double distanceTraveled(double force, double mass, double distanceDrawn,
+    private static double distanceTraveled(double force, double distanceDrawn,
                                           float[] orientation) {
 
-        double acceleration = acceleration(force, mass);
+        double acceleration = acceleration(force);
         double velocity = velocity(acceleration, distanceDrawn);
         double arrowAngle = arrowAngle(orientation);
         double time = time(velocity, arrowAngle);
@@ -144,15 +142,14 @@ public class PhysicsEngine {
      * @param latitudeInitial initial lat of the arrow
      * @param longitudeInitial initial long of the arrow
      * @param force force that the arrow is launched at
-     * @param mass mass of the arrow
      * @param distanceDrawn distance arrow is drawn
      * @param orientation orientation that the arrow is fired at
      * @param arm arm that the Myo band is on
      * @return longitude where the arrow lands
      */
-    public static double arrowFlightLongitude(double latitudeInitial, double longitudeInitial, double force, double mass, double distanceDrawn, float[] orientation, Arm arm) {
+    public static double arrowFlightLongitude(double latitudeInitial, double longitudeInitial, double force, double distanceDrawn, float[] orientation, Arm arm) {
 
-        double distance = distanceTraveled(force, mass, distanceDrawn, orientation);
+        double distance = distanceTraveled(force, distanceDrawn, orientation);
         double bearing = directionAngle(orientation, arm);
 
         return arrowLandingLongitude(latitudeInitial,longitudeInitial, bearing, distance);
@@ -165,15 +162,14 @@ public class PhysicsEngine {
      *
      * @param latitudeInitial initial lat of the arrow
      * @param force force that the arrow is launched at
-     * @param mass mass of the arrow
      * @param distanceDrawn distance arrow is drawn
      * @param orientation orientation that the arrow is fired at
      * @param arm arm that the Myo band is on
      * @return latitude where the arrow lands
      */
-    public static double arrowFlightLatitude(double latitudeInitial, double force, double mass, double distanceDrawn, float[] orientation, Arm arm) {
+    public static double arrowFlightLatitude(double latitudeInitial, double force, double distanceDrawn, float[] orientation, Arm arm) {
 
-        double distance = distanceTraveled(force, mass, distanceDrawn, orientation);
+        double distance = distanceTraveled(force, distanceDrawn, orientation);
         double bearing = directionAngle(orientation, arm);
 
         return arrowLandingLatitude(latitudeInitial, bearing, distance);

@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.VelocityTracker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +39,9 @@ public class ArcherActivity extends Activity implements SensorEventListener,
     public static String STATE_RESOLVING_KEY = "StateResolvingKey";
     public static String TARGET_LATITUDE_KEY = "TargetLatitudeKey";
     public static String TARGET_LONGITUDE_KEY = "TargetLongitudeKey";
+    public static String HIT_LATITUDE_KEY = "HitLatitudeKey";
+    public static String HIT_LONGITUDE_KEY = "HitLongitudeKey";
+    public static double ACCEL_UNIT_CONVERSION = (0.98 / 1000); // convert to meters
     private static final int REQUEST_RESOLVE_ERROR = 1001;
 
     public enum State {
@@ -46,6 +50,8 @@ public class ArcherActivity extends Activity implements SensorEventListener,
 
     private double mTargetLong;
     private double mTargetLat;
+    private double mHitLong;
+    private double mHitLat;
 
     private TextView mStateView;
     private TextView mOrientation;
@@ -413,7 +419,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         mEndPullTime = System.currentTimeMillis();
         mState = State.FLYING;
         mStateView.setText(getString(R.string.state_flying));
-        double dist = timeToDistance(mStartPullTime, mEndPullTime);
+        double force = timeToForce(mStartPullTime, mEndPullTime);
         showMap();
     }
 
@@ -439,6 +445,16 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         intent.putExtra(ResultMapActivity.TARGET_LONGITUDE, mTargetLong);
         intent.putExtra(ResultMapActivity.SOURCE_LATITUDE, mCurrentLocation.getLatitude());
         intent.putExtra(ResultMapActivity.SOURCE_LONGITUDE, mCurrentLocation.getLongitude());
+        /* Commented out until force, distanceDrawn orientation, and myo are set up */
+        // force made up = 100
+        // distance drawn made up = 10
+        // orientation made up = [0.8, -1.4, 0.26]
+        float[] orientationInvent = new float[3];
+        orientationInvent[0] = (float) 0.8;
+        orientationInvent[1] = (float) -1.4;
+        orientationInvent[2] = (float) 0.26;
+        intent.putExtra(ResultMapActivity.HIT_LATITUDE, PhysicsEngine.arrowFlightLatitude(mCurrentLocation.getLatitude(), 100, PhysicsEngine.mass, orientationInvent, Arm.RIGHT)); //changed myo.getArm() to Arm.RIGHT
+        intent.putExtra(ResultMapActivity.HIT_LONGITUDE, PhysicsEngine.arrowFlightLongitude(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude(), 100, PhysicsEngine.mass, orientationInvent, Arm.RIGHT));
         startActivity(intent);
     }
 
@@ -504,7 +520,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         }
     }
 
-    private double timeToDistance(long startTime, long endTime) {
+    private double timeToForce(long startTime, long endTime) {
         double deltaTime = (double) (endTime - startTime) / 1000;
         Log.d(LOG_TAG, Double.toString(deltaTime));
         return deltaTime;
