@@ -1,0 +1,11 @@
+Android Archer
+
+Things needed:
+	Android App
+		Connect to webserver
+
+	Distance model:
+		angle, distance, force, gps and compass
+		Return GPS location
+		how do I do an integral in java?
+			How do i do an integral? LOL

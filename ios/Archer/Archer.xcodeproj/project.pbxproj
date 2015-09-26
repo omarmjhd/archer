@@ -1,0 +1,531 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 47;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A7BEE19F1BB61C79007E3F48 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7BEE19E1BB61C79007E3F48 /* AppDelegate.swift */; };
+		A7BEE1A11BB61C79007E3F48 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7BEE1A01BB61C79007E3F48 /* ViewController.swift */; };
+		A7BEE1A41BB61C79007E3F48 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A7BEE1A21BB61C79007E3F48 /* Main.storyboard */; };
+		A7BEE1A61BB61C79007E3F48 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A7BEE1A51BB61C79007E3F48 /* Assets.xcassets */; };
+		A7BEE1A91BB61C7A007E3F48 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A7BEE1A71BB61C7A007E3F48 /* LaunchScreen.storyboard */; };
+		A7BEE1B41BB61C7A007E3F48 /* ArcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7BEE1B31BB61C7A007E3F48 /* ArcherTests.swift */; };
+		A7BEE1BF1BB61C7A007E3F48 /* ArcherUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7BEE1BE1BB61C7A007E3F48 /* ArcherUITests.swift */; };
+		A7BEE1CD1BB63614007E3F48 /* MyoKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7BEE1CC1BB63614007E3F48 /* MyoKit.framework */; };
+		A7BEE1CF1BB636A7007E3F48 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7BEE1CE1BB636A7007E3F48 /* CoreBluetooth.framework */; };
+		A7BEE1D11BB636B4007E3F48 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7BEE1D01BB636B4007E3F48 /* SystemConfiguration.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A7BEE1B01BB61C7A007E3F48 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A7BEE1931BB61C79007E3F48 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A7BEE19A1BB61C79007E3F48;
+			remoteInfo = Archer;
+		};
+		A7BEE1BB1BB61C7A007E3F48 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A7BEE1931BB61C79007E3F48 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A7BEE19A1BB61C79007E3F48;
+			remoteInfo = Archer;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A7BEE19B1BB61C79007E3F48 /* Archer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Archer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7BEE19E1BB61C79007E3F48 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		A7BEE1A01BB61C79007E3F48 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		A7BEE1A31BB61C79007E3F48 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		A7BEE1A51BB61C79007E3F48 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A7BEE1A81BB61C7A007E3F48 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		A7BEE1AA1BB61C7A007E3F48 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A7BEE1AF1BB61C7A007E3F48 /* ArcherTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ArcherTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7BEE1B31BB61C7A007E3F48 /* ArcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArcherTests.swift; sourceTree = "<group>"; };
+		A7BEE1B51BB61C7A007E3F48 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A7BEE1BA1BB61C7A007E3F48 /* ArcherUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ArcherUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7BEE1BE1BB61C7A007E3F48 /* ArcherUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArcherUITests.swift; sourceTree = "<group>"; };
+		A7BEE1C01BB61C7A007E3F48 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A7BEE1CC1BB63614007E3F48 /* MyoKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MyoKit.framework; path = "../../../Myo-iOS-SDK-0.5.2/MyoKit.framework"; sourceTree = "<group>"; };
+		A7BEE1CE1BB636A7007E3F48 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
+		A7BEE1D01BB636B4007E3F48 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		A7BEE1D21BB636EC007E3F48 /* archer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "archer-Bridging-Header.h"; path = "../archer-Bridging-Header.h"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A7BEE1981BB61C79007E3F48 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A7BEE1D11BB636B4007E3F48 /* SystemConfiguration.framework in Frameworks */,
+				A7BEE1CF1BB636A7007E3F48 /* CoreBluetooth.framework in Frameworks */,
+				A7BEE1CD1BB63614007E3F48 /* MyoKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7BEE1AC1BB61C7A007E3F48 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7BEE1B71BB61C7A007E3F48 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A7BEE1921BB61C79007E3F48 = {
+			isa = PBXGroup;
+			children = (
+				A7BEE1D01BB636B4007E3F48 /* SystemConfiguration.framework */,
+				A7BEE1CE1BB636A7007E3F48 /* CoreBluetooth.framework */,
+				A7BEE1CC1BB63614007E3F48 /* MyoKit.framework */,
+				A7BEE19D1BB61C79007E3F48 /* Archer */,
+				A7BEE1B21BB61C7A007E3F48 /* ArcherTests */,
+				A7BEE1BD1BB61C7A007E3F48 /* ArcherUITests */,
+				A7BEE19C1BB61C79007E3F48 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A7BEE19C1BB61C79007E3F48 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A7BEE19B1BB61C79007E3F48 /* Archer.app */,
+				A7BEE1AF1BB61C7A007E3F48 /* ArcherTests.xctest */,
+				A7BEE1BA1BB61C7A007E3F48 /* ArcherUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A7BEE19D1BB61C79007E3F48 /* Archer */ = {
+			isa = PBXGroup;
+			children = (
+				A7BEE1D21BB636EC007E3F48 /* archer-Bridging-Header.h */,
+				A7BEE19E1BB61C79007E3F48 /* AppDelegate.swift */,
+				A7BEE1A01BB61C79007E3F48 /* ViewController.swift */,
+				A7BEE1A21BB61C79007E3F48 /* Main.storyboard */,
+				A7BEE1A51BB61C79007E3F48 /* Assets.xcassets */,
+				A7BEE1A71BB61C7A007E3F48 /* LaunchScreen.storyboard */,
+				A7BEE1AA1BB61C7A007E3F48 /* Info.plist */,
+			);
+			path = Archer;
+			sourceTree = "<group>";
+		};
+		A7BEE1B21BB61C7A007E3F48 /* ArcherTests */ = {
+			isa = PBXGroup;
+			children = (
+				A7BEE1B31BB61C7A007E3F48 /* ArcherTests.swift */,
+				A7BEE1B51BB61C7A007E3F48 /* Info.plist */,
+			);
+			path = ArcherTests;
+			sourceTree = "<group>";
+		};
+		A7BEE1BD1BB61C7A007E3F48 /* ArcherUITests */ = {
+			isa = PBXGroup;
+			children = (
+				A7BEE1BE1BB61C7A007E3F48 /* ArcherUITests.swift */,
+				A7BEE1C01BB61C7A007E3F48 /* Info.plist */,
+			);
+			path = ArcherUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A7BEE19A1BB61C79007E3F48 /* Archer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A7BEE1C31BB61C7A007E3F48 /* Build configuration list for PBXNativeTarget "Archer" */;
+			buildPhases = (
+				A7BEE1971BB61C79007E3F48 /* Sources */,
+				A7BEE1981BB61C79007E3F48 /* Frameworks */,
+				A7BEE1991BB61C79007E3F48 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Archer;
+			productName = Archer;
+			productReference = A7BEE19B1BB61C79007E3F48 /* Archer.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A7BEE1AE1BB61C7A007E3F48 /* ArcherTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A7BEE1C61BB61C7A007E3F48 /* Build configuration list for PBXNativeTarget "ArcherTests" */;
+			buildPhases = (
+				A7BEE1AB1BB61C7A007E3F48 /* Sources */,
+				A7BEE1AC1BB61C7A007E3F48 /* Frameworks */,
+				A7BEE1AD1BB61C7A007E3F48 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A7BEE1B11BB61C7A007E3F48 /* PBXTargetDependency */,
+			);
+			name = ArcherTests;
+			productName = ArcherTests;
+			productReference = A7BEE1AF1BB61C7A007E3F48 /* ArcherTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A7BEE1B91BB61C7A007E3F48 /* ArcherUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A7BEE1C91BB61C7A007E3F48 /* Build configuration list for PBXNativeTarget "ArcherUITests" */;
+			buildPhases = (
+				A7BEE1B61BB61C7A007E3F48 /* Sources */,
+				A7BEE1B71BB61C7A007E3F48 /* Frameworks */,
+				A7BEE1B81BB61C7A007E3F48 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A7BEE1BC1BB61C7A007E3F48 /* PBXTargetDependency */,
+			);
+			name = ArcherUITests;
+			productName = ArcherUITests;
+			productReference = A7BEE1BA1BB61C7A007E3F48 /* ArcherUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A7BEE1931BB61C79007E3F48 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0700;
+				ORGANIZATIONNAME = "Omar Mujahid";
+				TargetAttributes = {
+					A7BEE19A1BB61C79007E3F48 = {
+						CreatedOnToolsVersion = 7.0;
+						DevelopmentTeam = 53K6HS9H9X;
+					};
+					A7BEE1AE1BB61C7A007E3F48 = {
+						CreatedOnToolsVersion = 7.0;
+						TestTargetID = A7BEE19A1BB61C79007E3F48;
+					};
+					A7BEE1B91BB61C7A007E3F48 = {
+						CreatedOnToolsVersion = 7.0;
+						TestTargetID = A7BEE19A1BB61C79007E3F48;
+					};
+				};
+			};
+			buildConfigurationList = A7BEE1961BB61C79007E3F48 /* Build configuration list for PBXProject "Archer" */;
+			compatibilityVersion = "Xcode 6.3";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A7BEE1921BB61C79007E3F48;
+			productRefGroup = A7BEE19C1BB61C79007E3F48 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A7BEE19A1BB61C79007E3F48 /* Archer */,
+				A7BEE1AE1BB61C7A007E3F48 /* ArcherTests */,
+				A7BEE1B91BB61C7A007E3F48 /* ArcherUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A7BEE1991BB61C79007E3F48 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A7BEE1A91BB61C7A007E3F48 /* LaunchScreen.storyboard in Resources */,
+				A7BEE1A61BB61C79007E3F48 /* Assets.xcassets in Resources */,
+				A7BEE1A41BB61C79007E3F48 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7BEE1AD1BB61C7A007E3F48 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7BEE1B81BB61C7A007E3F48 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A7BEE1971BB61C79007E3F48 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A7BEE1A11BB61C79007E3F48 /* ViewController.swift in Sources */,
+				A7BEE19F1BB61C79007E3F48 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7BEE1AB1BB61C7A007E3F48 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A7BEE1B41BB61C7A007E3F48 /* ArcherTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A7BEE1B61BB61C7A007E3F48 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A7BEE1BF1BB61C7A007E3F48 /* ArcherUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A7BEE1B11BB61C7A007E3F48 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A7BEE19A1BB61C79007E3F48 /* Archer */;
+			targetProxy = A7BEE1B01BB61C7A007E3F48 /* PBXContainerItemProxy */;
+		};
+		A7BEE1BC1BB61C7A007E3F48 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A7BEE19A1BB61C79007E3F48 /* Archer */;
+			targetProxy = A7BEE1BB1BB61C7A007E3F48 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		A7BEE1A21BB61C79007E3F48 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A7BEE1A31BB61C79007E3F48 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		A7BEE1A71BB61C7A007E3F48 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A7BEE1A81BB61C7A007E3F48 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		A7BEE1C11BB61C7A007E3F48 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A7BEE1C21BB61C7A007E3F48 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A7BEE1C41BB61C7A007E3F48 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Archer/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				New_Setting = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.omarmjhd.archer.Archer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Archer/archer-Bridging-Header.h";
+				"SWIFT_OBJC_BRIDGING_HEADER[sdk=iphoneos9.0]" = "";
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		A7BEE1C51BB61C7A007E3F48 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Archer/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				New_Setting = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.omarmjhd.archer.Archer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Archer/archer-Bridging-Header.h";
+				"SWIFT_OBJC_BRIDGING_HEADER[sdk=iphoneos9.0]" = "Archer/archer-Bridging-Header.h";
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		A7BEE1C71BB61C7A007E3F48 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = ArcherTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = archer.ArcherTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Archer.app/Archer";
+			};
+			name = Debug;
+		};
+		A7BEE1C81BB61C7A007E3F48 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = ArcherTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = archer.ArcherTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Archer.app/Archer";
+			};
+			name = Release;
+		};
+		A7BEE1CA1BB61C7A007E3F48 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = ArcherUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = archer.ArcherUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = Archer;
+				USES_XCTRUNNER = YES;
+			};
+			name = Debug;
+		};
+		A7BEE1CB1BB61C7A007E3F48 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = ArcherUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = archer.ArcherUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = Archer;
+				USES_XCTRUNNER = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A7BEE1961BB61C79007E3F48 /* Build configuration list for PBXProject "Archer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A7BEE1C11BB61C7A007E3F48 /* Debug */,
+				A7BEE1C21BB61C7A007E3F48 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A7BEE1C31BB61C7A007E3F48 /* Build configuration list for PBXNativeTarget "Archer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A7BEE1C41BB61C7A007E3F48 /* Debug */,
+				A7BEE1C51BB61C7A007E3F48 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		A7BEE1C61BB61C7A007E3F48 /* Build configuration list for PBXNativeTarget "ArcherTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A7BEE1C71BB61C7A007E3F48 /* Debug */,
+				A7BEE1C81BB61C7A007E3F48 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		A7BEE1C91BB61C7A007E3F48 /* Build configuration list for PBXNativeTarget "ArcherUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A7BEE1CA1BB61C7A007E3F48 /* Debug */,
+				A7BEE1CB1BB61C7A007E3F48 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A7BEE1931BB61C79007E3F48 /* Project object */;
+}
