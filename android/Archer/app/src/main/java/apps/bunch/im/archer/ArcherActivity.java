@@ -413,6 +413,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         mEndPullTime = System.currentTimeMillis();
         mState = State.FLYING;
         mStateView.setText(getString(R.string.state_flying));
+        double dist = timeToDistance(mStartPullTime, mEndPullTime);
         showMap();
     }
 
@@ -501,5 +502,11 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         if (savedInstanceState.keySet().contains(TARGET_LONGITUDE_KEY)) {
             mTargetLong = savedInstanceState.getDouble(TARGET_LONGITUDE_KEY);
         }
+    }
+
+    private double timeToDistance(long startTime, long endTime) {
+        double deltaTime = (double) (endTime - startTime) / 1000;
+        Log.d(LOG_TAG, Double.toString(deltaTime));
+        return deltaTime;
     }
 }
