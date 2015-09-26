@@ -32,11 +32,14 @@ public class ArcherActivity extends Activity implements SensorEventListener {
         WAITING, PULLING, FLYING
     }
 
-    private TextView mStateView, mOrientationView;
+    private TextView mStateView, mOrientationView, mAccelGeo;
     private State mState = State.WAITING;
 
     private SensorManager mSensorManager;
-    private Sensor mOrientation;
+    private Sensor mOrientation, mAccelerometer, mGeomagnetic;
+    private float[] orientation = new float[3];
+    private float[] gravity = new float[3];
+    private float[] geomagnetic = new float[3];
 
     // Classes that inherit from AbstractDeviceListener can be used to receive events from Myo devices.
     // If you do not override an event, the default behavior is to do nothing.
@@ -180,6 +183,7 @@ public class ArcherActivity extends Activity implements SensorEventListener {
 
         mStateView = (TextView) findViewById(R.id.state);
         mOrientationView = (TextView) findViewById(R.id.orientation);
+        mAccelGeo = (TextView) findViewById(R.id.accel_geomag);
 
         // First, we initialize the Hub singleton with an application identifier.
         Hub hub = Hub.getInstance();
@@ -195,13 +199,16 @@ public class ArcherActivity extends Activity implements SensorEventListener {
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mOrientation = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
-
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mGeomagnetic = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         mSensorManager.registerListener(this, mOrientation, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mGeomagnetic, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -217,13 +224,30 @@ public class ArcherActivity extends Activity implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        float yaw = event.values[0];
-        float pitch = event.values[1];
-        float roll = event.values[2];
+        switch (event.sensor.getType()) {
+            case Sensor.TYPE_ORIENTATION:
+                orientation = event.values;
+                break;
+            case Sensor.TYPE_ACCELEROMETER:
+                gravity = event.values;
+                break;
+            case Sensor.TYPE_MAGNETIC_FIELD:
+                geomagnetic = event.values;
+                break;
+        }
+        if (gravity != null && geomagnetic != null) {
+            float R[] = new float[9];
+            float I[] = new float[9];
 
-        String foo = String.format("(yaw, pitch, roll): %.2f, %.2f, %.2f", yaw, pitch, roll);
+            if (SensorManager.getRotationMatrix(R, I, gravity, geomagnetic)) {
+                float[] foo = new float[3];
+                SensorManager.getOrientation(R, foo);
+                mAccelGeo.setText(String.format("AccelGeo => (y,p,r): %.2f, %.2f, %.2f", foo[0], foo[1], foo[2]));
+            }
+        }
 
-        mOrientationView.setText(foo);
+        mOrientationView.setText(String.format("Orientation => (y,p,r): %.2f, %.2f, %.2f", orientation[0], orientation[1], orientation[2]));
+
     }
 
     @Override

@@ -20,4 +20,11 @@
         android:text="Orientation"
         android:id="@+id/orientation"
         android:layout_below="@+id/state" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Orientation"
+        android:id="@+id/accel_geomag"
+        android:layout_below="@+id/orientation" />
 </RelativeLayout>
