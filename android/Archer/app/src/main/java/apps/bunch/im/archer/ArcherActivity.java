@@ -24,6 +24,9 @@ import com.thalmic.myo.Vector3;
 import com.thalmic.myo.XDirection;
 import com.thalmic.myo.scanner.ScanActivity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ArcherActivity extends Activity implements SensorEventListener {
 
     public static String LOG_TAG = "ArcherActivity";
@@ -32,14 +35,20 @@ public class ArcherActivity extends Activity implements SensorEventListener {
         WAITING, PULLING, FLYING
     }
 
-    private TextView mStateView, mOrientationView, mAccelGeo;
+    private TextView mStateView, mOrientation, mMyoAcceleration, mMyoOrientation, mGravity, mLinearAcceleration;
     private State mState = State.WAITING;
 
     private SensorManager mSensorManager;
-    private Sensor mOrientation, mAccelerometer, mGeomagnetic;
-    private float[] orientation = new float[3];
+    private Sensor mAccelerometer, mGeomagnetic;
     private float[] gravity = new float[3];
     private float[] geomagnetic = new float[3];
+
+    private List<Vector3> accelerations = new ArrayList<Vector3>();
+    private List<Long> dt = new ArrayList<Long>();
+
+    private Vector3 lastAccel, lastGravity;
+
+    private long lastTime = 0;
 
     // Classes that inherit from AbstractDeviceListener can be used to receive events from Myo devices.
     // If you do not override an event, the default behavior is to do nothing.
@@ -92,13 +101,24 @@ public class ArcherActivity extends Activity implements SensorEventListener {
         @Override
         public void onAccelerometerData(Myo myo, long timestamp, Vector3 accel) {
             //Log.d(LOG_TAG, "Acceleration: " + accel.toString());
+            mMyoAcceleration.setText(String.format("Myo Accel (x,y,z) => %.5f, %.5f, %.5f", accel.x(), accel.y(), accel.z()));
+            if (mState == State.PULLING) {
+                accelerations.add(accel);
+                dt.add(timestamp - lastTime);
+            }
+            lastTime = timestamp;
+            lastAccel = accel;
+        }
+
+        @Override
+        public void onGyroscopeData(Myo myo, long timestamp, Vector3 gyro) {
+            super.onGyroscopeData(myo, timestamp, gyro);
         }
 
         // onOrientationData() is called whenever a Myo provides its current orientation,
         // represented as a quaternion.
         @Override
         public void onOrientationData(Myo myo, long timestamp, Quaternion rotation) {
-            /*
             // Calculate Euler angles (roll, pitch, and yaw) from the quaternion.
             float roll = (float) Math.toDegrees(Quaternion.roll(rotation));
             float pitch = (float) Math.toDegrees(Quaternion.pitch(rotation));
@@ -109,12 +129,29 @@ public class ArcherActivity extends Activity implements SensorEventListener {
                 roll *= -1;
                 pitch *= -1;
             }
-
+            Vector3 g = new Vector3(
+                    2 * (rotation.x() * rotation.z() - rotation.w() * rotation.y()),
+                    2 * (rotation.w() * rotation.x() + rotation.y() * rotation.z()),
+                    rotation.w() * rotation.w() - rotation.x() * rotation.x() - rotation.y() * rotation.y() + rotation.z() * rotation.z()
+            );
+            lastGravity = g;
+            /*
             // Next, we apply a rotation to the text view using the roll, pitch, and yaw.
             mTextView.setRotation(roll);
             mTextView.setRotationX(pitch);
             mTextView.setRotationY(yaw);
             */
+            mMyoOrientation.setText(String.format("Myo Orient (y,p,r) => %.2f, %.2f, %.2f", yaw, pitch, roll));
+            mGravity.setText(String.format("Gravity (x,y,z) => %.4f, %.4f, %.4f", g.x(), g.y(), g.z()));
+            setAccelerationDataNullGravity(lastGravity, lastAccel);
+        }
+
+        private void setAccelerationDataNullGravity(Vector3 g, Vector3 accel) {
+            if (g != null && accel != null) {
+                Vector3 linear = new Vector3(g);
+                linear.subtract(accel);
+                mLinearAcceleration.setText(String.format("LinAccel => (x,y,z): %.4f, %.4f, %.4f", linear.x(), linear.y(), linear.z()));
+            }
         }
 
         // onPose() is called whenever a Myo provides a new pose.
@@ -138,6 +175,7 @@ public class ArcherActivity extends Activity implements SensorEventListener {
                     Log.i(LOG_TAG, "Fist pose.");
                     if (mState == State.WAITING) {
                         setStatePulling();
+                        lastTime = timestamp;
                     }
                     break;
                 case WAVE_IN:
@@ -182,8 +220,11 @@ public class ArcherActivity extends Activity implements SensorEventListener {
         setContentView(R.layout.activity_archer);
 
         mStateView = (TextView) findViewById(R.id.state);
-        mOrientationView = (TextView) findViewById(R.id.orientation);
-        mAccelGeo = (TextView) findViewById(R.id.accel_geomag);
+        mOrientation = (TextView) findViewById(R.id.orientation);
+        mMyoAcceleration = (TextView) findViewById(R.id.myo_acceleration);
+        mMyoOrientation = (TextView) findViewById(R.id.myo_orientation);
+        mGravity = (TextView) findViewById(R.id.gravity);
+        mLinearAcceleration = (TextView) findViewById(R.id.linear_accel);
 
         // First, we initialize the Hub singleton with an application identifier.
         Hub hub = Hub.getInstance();
@@ -198,7 +239,6 @@ public class ArcherActivity extends Activity implements SensorEventListener {
         hub.addListener(mListener);
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        mOrientation = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mGeomagnetic = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
     }
@@ -206,7 +246,6 @@ public class ArcherActivity extends Activity implements SensorEventListener {
     @Override
     protected void onResume() {
         super.onResume();
-        mSensorManager.registerListener(this, mOrientation, SensorManager.SENSOR_DELAY_NORMAL);
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         mSensorManager.registerListener(this, mGeomagnetic, SensorManager.SENSOR_DELAY_NORMAL);
     }
@@ -225,9 +264,6 @@ public class ArcherActivity extends Activity implements SensorEventListener {
     @Override
     public void onSensorChanged(SensorEvent event) {
         switch (event.sensor.getType()) {
-            case Sensor.TYPE_ORIENTATION:
-                orientation = event.values;
-                break;
             case Sensor.TYPE_ACCELEROMETER:
                 gravity = event.values;
                 break;
@@ -242,11 +278,9 @@ public class ArcherActivity extends Activity implements SensorEventListener {
             if (SensorManager.getRotationMatrix(R, I, gravity, geomagnetic)) {
                 float[] foo = new float[3];
                 SensorManager.getOrientation(R, foo);
-                mAccelGeo.setText(String.format("AccelGeo => (y,p,r): %.2f, %.2f, %.2f", foo[0], foo[1], foo[2]));
+                mOrientation.setText(String.format("Orientation (y,p,r) => %.2f, %.2f, %.2f", foo[0], foo[1], foo[2]));
             }
         }
-
-        mOrientationView.setText(String.format("Orientation => (y,p,r): %.2f, %.2f, %.2f", orientation[0], orientation[1], orientation[2]));
 
     }
 

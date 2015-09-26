@@ -17,14 +17,36 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Orientation"
+        android:text="Phone Orientation"
         android:id="@+id/orientation"
         android:layout_below="@+id/state" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Orientation"
-        android:id="@+id/accel_geomag"
+        android:text="Myo Acceleration"
+        android:id="@+id/myo_acceleration"
         android:layout_below="@+id/orientation" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Myo Orientation"
+        android:id="@+id/myo_orientation"
+        android:layout_below="@+id/myo_acceleration" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Expected Gravity"
+        android:id="@+id/gravity"
+        android:layout_below="@+id/myo_orientation" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Linear Acceleration"
+        android:id="@+id/linear_accel"
+        android:layout_below="@+id/gravity" />
+
 </RelativeLayout>
