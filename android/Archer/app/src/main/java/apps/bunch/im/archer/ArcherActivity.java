@@ -209,6 +209,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
             return new Vector3(0,0,0);
         }
 
+
         // onPose() is called whenever a Myo provides a new pose.
         @Override
         public void onPose(Myo myo, long timestamp, Pose pose) {
@@ -524,6 +525,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
     private double calcDistance() {
         List<Vector3> velValues = new ArrayList<>();
         List<Long> velTimes = new ArrayList<>();
+        List<Vector3> mAverageAccel = movingAverage(mAccelValues, 3);
         for (int i = 1; i < mAccelValues.size(); i++) {
             Vector3 a = mAccelValues.get(i);
             Log.d(LOG_TAG, Long.toString(mAccelTimes.get(i)) + ", " + a.toString());
@@ -540,5 +542,29 @@ public class ArcherActivity extends Activity implements SensorEventListener,
             finalPos.add(p);
         }
         return finalPos.length();
+    }
+
+    private List<Vector3> movingAverage(List<Vector3> accels, int sampleSize) {
+        List<Vector3> result = new ArrayList<>(accels.size());
+        if (accels.size() >= sampleSize) {
+            for (int i = 0; i < accels.size(); i++) {
+                int count = 0;
+                Vector3 avg = new Vector3(accels.get(i));
+                for (int j = i; j < i + sampleSize; j++) {
+                    if ((j >= accels.size())) {
+                        break;
+                    }
+                    avg.add(accels.get(i));
+                    count++;
+                }
+                avg.divide((double) count);
+                result.add(avg);
+            }
+            for (Vector3 current: result) {
+                Log.d(LOG_TAG, current.toString());
+            }
+            return result;
+        }
+        return accels;
     }
 }
