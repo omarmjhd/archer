@@ -73,7 +73,8 @@ public class PhysicsEngine {
      */
     private static double directionAngle(float[] angles, Arm arm) {
 
-        return arm == Arm.RIGHT ? angles[0] + (Math.PI / 2) : angles[0] - (Math.PI / 2);
+        //return arm == Arm.RIGHT ? angles[0] + (Math.PI / 2) : angles[0] - (Math.PI / 2);
+        return angles[0];
     }
 
     /**
