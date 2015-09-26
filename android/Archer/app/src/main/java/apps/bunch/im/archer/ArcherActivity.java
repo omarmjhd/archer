@@ -3,6 +3,10 @@ package apps.bunch.im.archer;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -21,7 +25,10 @@ import com.thalmic.myo.Vector3;
 import com.thalmic.myo.XDirection;
 import com.thalmic.myo.scanner.ScanActivity;
 
-public class ArcherActivity extends Activity {
+import java.util.Formatter;
+import java.util.Locale;
+
+public class ArcherActivity extends Activity implements SensorEventListener {
 
     public static String LOG_TAG = "ArcherActivity";
 
@@ -29,8 +36,11 @@ public class ArcherActivity extends Activity {
         WAITING, PULLING, FLYING
     }
 
-    private TextView mStateView;
+    private TextView mStateView, mOrientationView;
     private State mState = State.WAITING;
+
+    private SensorManager mSensorManager;
+    private Sensor mOrientation;
 
     // Classes that inherit from AbstractDeviceListener can be used to receive events from Myo devices.
     // If you do not override an event, the default behavior is to do nothing.
@@ -172,6 +182,7 @@ public class ArcherActivity extends Activity {
         setContentView(R.layout.activity_archer);
 
         mStateView = (TextView) findViewById(R.id.state);
+        mOrientationView = (TextView) findViewById(R.id.orientation);
 
         // First, we initialize the Hub singleton with an application identifier.
         Hub hub = Hub.getInstance();
@@ -184,6 +195,38 @@ public class ArcherActivity extends Activity {
 
         // Next, register for DeviceListener callbacks.
         hub.addListener(mListener);
+
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mOrientation = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(this, mOrientation, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        float yaw = event.values[0];
+        float pitch = event.values[1];
+        float roll = event.values[2];
+
+        String foo = String.format("(yaw, pitch, roll): %.2f, %.2f, %.2f", yaw, pitch, roll);
+
+        mOrientationView.setText(foo);
     }
 
     @Override
@@ -223,6 +266,8 @@ public class ArcherActivity extends Activity {
             Hub.getInstance().shutdown();
         }
     }
+
+
 
     private void onScanActionSelected() {
         // Launch the ScanActivity to scan for Myos to connect to.

@@ -13,4 +13,11 @@
         android:id="@+id/state"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Orientation"
+        android:id="@+id/orientation"
+        android:layout_below="@+id/state" />
 </RelativeLayout>
