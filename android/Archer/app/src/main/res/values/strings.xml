@@ -22,4 +22,7 @@
     <string name="state_pulling">Let go of the bow.</string>
     <string name="state_flying">Your arrow is flying.</string>
     <string name="title_activity_maps">Map</string>
+
+    <string name="app_id">keen-index-108003</string>
+    <string name="title_activity_choose_target">Choose Target</string>
 </resources>

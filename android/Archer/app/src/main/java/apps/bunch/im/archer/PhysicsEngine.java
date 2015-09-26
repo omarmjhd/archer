@@ -61,11 +61,11 @@ public class PhysicsEngine {
 
     //x = long y = lat
     private static double arrowTravelX(double distance, double longitude, double azimuth) {
-
+        return 0;
     }
 
     private static double arrowTravelY(double distance, double latitude, double azimuth) {
-
+        return 0;
     }
 
 
