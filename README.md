@@ -9,6 +9,6 @@ s
 We decided to use the motion sensors in a Myo Armband, combined with the orientation and GPS sensors in an Android phone to let users mimic firing a real life bow and arrow. Users are able to select a target that they are firing at on Google Maps, and then see their arrow fly through the air. If the user's arrow lands within a certain area of their target, the target ring changes color to show a successful hit!
 
 ##Creators
-This application was developed collaboratively at HackGT by Creston Bunch (@crestonbunch), Omar Mujahid (@omarmjhd) and Adam Sasine (@asasine).
+This application was developed collaboratively at HackGT by Creston Bunch ([@crestonbunch](http://github.com/crestonbunch)), Omar Mujahid ([@omarmjhd](http://github.com/omarmjhd)) and Adam Sasine ([@asasine](http://github.com/asasine)).
 
 
