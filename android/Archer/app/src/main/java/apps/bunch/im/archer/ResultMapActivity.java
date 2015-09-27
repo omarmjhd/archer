@@ -121,7 +121,7 @@ public class ResultMapActivity extends FragmentActivity {
                 .strokeColor(Color.BLACK)
                 .fillColor(Color.argb(100, 215, 44, 44)));
 
-        if (distanceCalculation() < 1000) { //abitrarily high to test
+        if (distanceCalculation() < 10000) { //abitrarily high to test
             Log.d(LOG_TAG, "Inside distanceCalculation() if statement: ");
             circle.setFillColor(Color.argb(100, 44, 215, 44));
 
