@@ -15,8 +15,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.SphericalUtil;
 
-import android.location.Location;
-
 
 public class ResultMapActivity extends FragmentActivity {
 
@@ -32,6 +30,7 @@ public class ResultMapActivity extends FragmentActivity {
     private LatLng mHit;
     private LatLng mTarget;
     private LatLng mSource;
+    private Circle mCircle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +47,11 @@ public class ResultMapActivity extends FragmentActivity {
         mHit = new LatLng(hitLat, hitLong);
         mSource = new LatLng(srcLat, srcLong);
         mTarget = new LatLng(targetLat, targetLong);
+        mCircle = mMap.addCircle(new CircleOptions()
+                .center(mTarget)
+                .radius(10000)
+                .strokeColor(Color.BLACK)
+                .fillColor(Color.argb(100, 215, 44, 44)));
 
         setUpMapIfNeeded();
         //mMap.setMyLocationEnabled(true);
@@ -115,24 +119,23 @@ public class ResultMapActivity extends FragmentActivity {
         mMap.addMarker(hitMarker);
         mMap.addMarker(srcMarker);
         mMap.addMarker(targetMarker);
-        Circle circle = mMap.addCircle(new CircleOptions()
-                .center(mTarget)
-                .radius(10000)
-                .strokeColor(Color.BLACK)
-                .fillColor(Color.argb(100, 215, 44, 44)));
+        hitSensor();
 
-        if (distanceCalculation() < 10000) { //abitrarily high to test
-            Log.d(LOG_TAG, "Inside distanceCalculation() if statement: ");
-            circle.setFillColor(Color.argb(100, 44, 215, 44));
-
-        }
     }
 
-    private double distanceCalculation() {
+    private double distanceFromTarget() {
+        return SphericalUtil.computeDistanceBetween(mTarget, mHit); //distanceTo returns meters
+    }
 
-        double distance = SphericalUtil.computeDistanceBetween(mTarget, mHit);
-        Log.d(LOG_TAG, "Distance from hit to target: " + Double.toString(distance));
+    private double distanceBetweenSourceTarget() {
+        return SphericalUtil.computeDistanceBetween(mSource, mTarget);
+    }
 
-        return distance; //distanceTo returns meters
+    private void hitSensor() {
+
+        if (distanceFromTarget() < 0.1 * distanceBetweenSourceTarget()) { //abitrarily high to test
+            mCircle.setFillColor(Color.argb(100, 44, 215, 44));
+        }
+        
     }
 }
