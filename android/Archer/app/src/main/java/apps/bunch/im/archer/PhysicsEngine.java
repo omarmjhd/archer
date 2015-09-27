@@ -14,7 +14,7 @@ public class PhysicsEngine {
     private static final String LOG_TAG = "PhysicsEngine";
 
     public static final double mass = .03; //kg
-    public static final double gravity = 9.81;
+    public static final double gravity = 9.81; //m/s^2
 
     /**
      * @param force force that arrow is exerting in Newtons
@@ -38,7 +38,7 @@ public class PhysicsEngine {
      * @return time that arrow is in the air in s
      */
     private static double time(double velocity, double radians) {
-        return (velocity * Math.sin(radians)) / gravity;
+        return 2 * (velocity * Math.sin(radians)) / gravity;
     }
 
     /**

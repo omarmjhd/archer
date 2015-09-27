@@ -458,7 +458,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         // distance drawn made up = 10
         // orientation made up = [0.8, -1.4, 0.26]
         //double force = timeToForce(mStartPullTime, mEndPullTime);
-        double force = 1000;
+        double force = 10000;
         LatLng mHitLatLng = PhysicsEngine.arrowFlightLatLng(
                 new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()),
                 force, mOrientation);
