@@ -1,5 +1,13 @@
 /* Copyright 2013 Google Inc.
-   Licensed under Apache 2.0: http://www.apache.org/licenses/LICENSE-2.0.html */
+   Licensed under Apache 2.0: http://www.apache.org/licenses/LICENSE-2.0.html
+
+   This code is used under the terms of an Apache 2.0 license by our team to facilitate the animation
+   of markers across our map. The animation code was originally written by Chris Broadfoot of the
+   Google Maps API Team, and can be found as a gist on Broadfoot's personal Github Account:
+   Account: @broady
+   Link: https://gist.github.com/broady/6314689
+
+*/
 
 package apps.bunch.im.archer;
 

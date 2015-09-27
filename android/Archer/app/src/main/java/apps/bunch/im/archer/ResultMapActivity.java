@@ -110,9 +110,9 @@ public class ResultMapActivity extends FragmentActivity {
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
         ).title("Target");
 
-        MarkerOptions hitMarker = new MarkerOptions().position(mHit).icon(
+        /*MarkerOptions hitMarker = new MarkerOptions().position(mHit).icon(
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
-        ).title("Hit");
+        ).title("Hit");*/
 
         MarkerOptions animatedMarkerOptions = new MarkerOptions().position(mSource).icon(
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)
@@ -120,11 +120,11 @@ public class ResultMapActivity extends FragmentActivity {
 
         mAnimatedMarker = mMap.addMarker(animatedMarkerOptions);
 
-        mMap.addMarker(hitMarker);
+        //mMap.addMarker(hitMarker);
         mMap.addMarker(targetMarker);
 
         LatLngInterpolator mLatLngInterpolator = new LatLngInterpolator.Spherical();
-        MarkerAnimation.animateMarkerToGB(mAnimatedMarker, mTarget, mLatLngInterpolator);
+        MarkerAnimation.animateMarkerToGB(mAnimatedMarker, mHit, mLatLngInterpolator);
 
         hitSensor();
 
