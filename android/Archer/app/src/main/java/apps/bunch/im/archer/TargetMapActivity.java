@@ -74,9 +74,12 @@ public class TargetMapActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
+        mTarget = new LatLng(0,0);
         mTargetMarker = mMap.addMarker(new MarkerOptions()
-                .position(new LatLng(0, 0)).title("Target")
+                .position(mTarget).title("Target")
                 .draggable(true));
+
+        mMap.setMyLocationEnabled(true);
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override

@@ -105,9 +105,7 @@ public class ResultMapActivity extends FragmentActivity {
         Log.d(LOG_TAG, "Target: " + mTarget.toString());
         Log.d(LOG_TAG, "Hit: " + mHit.toString());
 
-        MarkerOptions srcMarker = new MarkerOptions().position(mSource).icon(
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
-        ).title("You");
+        mMap.setMyLocationEnabled(true);
 
         MarkerOptions targetMarker = new MarkerOptions().position(mTarget).icon(
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
@@ -118,7 +116,6 @@ public class ResultMapActivity extends FragmentActivity {
         ).title("Hit");
 
         mMap.addMarker(hitMarker);
-        mMap.addMarker(srcMarker);
         mMap.addMarker(targetMarker);
         hitSensor();
 
