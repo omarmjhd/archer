@@ -74,7 +74,7 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
     private GoogleApiClient mGoogleApiClient;
     private SensorManager mSensorManager;
     private Sensor mAccelerometer, mGeomagnetic;
-    private int sampleSize = 25;
+    private int sampleSize = 35;
     private int index = 0;
     private float[] gravity = new float[3];
     private float[] geomagnetic = new float[3];
@@ -384,7 +384,7 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
                 mOrientation = new float[3];
                 SensorManager.getOrientation(R, mOrientation);
                 mOrientations[index++] = mOrientation;
-                index %= 5;
+                index %= sampleSize;
                 movingAverage();
                 mOrientationView.setText(String.format("Compass: %.1f", Math.toDegrees(mOrientation[0]) + 180));
                 mAngleView.setText(String.format("Angle: %.1f", 90+Math.toDegrees(mOrientation[1])));
