@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -67,6 +68,7 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
     private TextView mOrientationView;
     private TextView mHeadingView;
     private Button mSelectButton;
+    private Button mOverrideButton;
     private TextView mAngleView;
     private ProgressBar mStrengthBar;
     private boolean mMyoConnected = false;
@@ -386,13 +388,16 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
                 mOrientations[index++] = mOrientation;
                 index %= sampleSize;
                 movingAverage();
-                mOrientationView.setText(String.format("Compass: %.1f", Math.toDegrees(mOrientation[0]) + 180));
-                mAngleView.setText(String.format("Angle: %.1f", 90+Math.toDegrees(mOrientation[1])));
+                mOrientationView.setText(String.format("Compass: %.1f", Math.toDegrees(mOrientationAverage[0]) + 180));
+                mAngleView.setText(String.format("Angle: %.1f", 90 + Math.toDegrees(mOrientationAverage[1])));
             }
         }
 
         if (mSource != null && mTarget != null) {
             double heading = SphericalUtil.computeHeading(mSource, mTarget);
+            if (heading < 0) {
+                heading += 360;
+            }
             mHeadingView.setText(String.format("Target heading: %.1f", heading));
         }
     }
@@ -437,7 +442,30 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
         mHeadingView = (TextView) findViewById(R.id.heading);
         mStrengthBar = (ProgressBar) findViewById(R.id.strength_bar);
         mSelectButton = (Button) findViewById(R.id.select_button);
+        mOverrideButton = (Button) findViewById(R.id.override_button);
         mAngleView = (TextView) findViewById(R.id.angle);
+
+        mOverrideButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (v.getId() == R.id.override_button) {
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            if (mState == State.WAITING) {
+                                setStateButtonOverride();
+                                mOverrideButton.callOnClick();
+                            }
+                            return false;
+                        case MotionEvent.ACTION_UP:
+                            if (mState == State.BUTTON_OVERRIDE) {
+                                setStateFlying();
+                            }
+                            return false;
+                    }
+                }
+                return false;
+            }
+        });
 
         mSource = new LatLng(0, 0);
         mTarget = new LatLng(0, 0);
@@ -529,6 +557,21 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
         super.onStop();
     }
 
+    private void setStateButtonOverride() {
+        Log.i(LOG_TAG, "Changing state to button override");
+        mStartPullTime = System.currentTimeMillis();
+        mState = State.BUTTON_OVERRIDE;
+        mStateView.setText(getString(R.string.state_button_override));
+    }
+
+    private void setStateFlying() {
+        Log.i(LOG_TAG, "Changing state to flying.");
+        mEndPullTime = System.currentTimeMillis();
+        mState = State.FLYING;
+        mStateView.setText(getString(R.string.state_flying));
+        showResultMap();
+    }
+
     /**
      * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
      * installed) and the map has not already been instantiated.. This will ensure that we only ever
@@ -563,45 +606,6 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
         mStateView.setText(getString(R.string.state_waiting));
     }
 
-    /**
-     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
-     * just add a marker near Africa.
-     * <p/>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
-     */
-    private void setUpMap() {
-        mTarget = new LatLng(0, 0);
-        mTargetMarker = mMap.addMarker(new MarkerOptions().position(mTarget).title("Target"));
-        //updateMarker();
-
-        mMap.setMyLocationEnabled(true);
-
-        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-            @Override
-            public void onMapLoaded() {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(
-                        new LatLngBounds.Builder().include(mTarget).include(mSource).build(), 256));
-                mMap.setOnCameraChangeListener(null);
-            }
-        });
-
-    }
-
-    private void updateMarker() {
-        mTargetMarker.setPosition(mTarget);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(
-                new LatLngBounds.Builder().include(mSource).include(mTarget).build(), 256));
-
-    }
-
-    private void setStateFlying() {
-        Log.i(LOG_TAG, "Changing state to flying.");
-        mEndPullTime = System.currentTimeMillis();
-        mState = State.FLYING;
-        mStateView.setText(getString(R.string.state_flying));
-        showResultMap();
-    }
-
     private void showResultMap() {
 
         Log.i(LOG_TAG, "Target: (" + Double.toString(mTarget.latitude) + ", "
@@ -633,6 +637,37 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
         startActivity(intent);
     }
 
+    /**
+     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
+     * just add a marker near Africa.
+     * <p/>
+     * This should only be called once and when we are sure that {@link #mMap} is not null.
+     */
+    private void setUpMap() {
+        mTarget = new LatLng(0, 0);
+        mTargetMarker = mMap.addMarker(new MarkerOptions().position(mTarget).title("Target"));
+        //updateMarker();
+
+        mMap.setMyLocationEnabled(true);
+
+        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            @Override
+            public void onMapLoaded() {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(
+                        new LatLngBounds.Builder().include(mTarget).include(mSource).build(), 256));
+                mMap.setOnCameraChangeListener(null);
+            }
+        });
+
+    }
+
+    private void updateMarker() {
+        mTargetMarker.setPosition(mTarget);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(
+                new LatLngBounds.Builder().include(mSource).include(mTarget).build(), 256));
+
+    }
+
     private void setStatePulling() {
         Log.i(LOG_TAG, "Changing state to pulling.");
         mStartPullTime = System.currentTimeMillis();
@@ -649,7 +684,8 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
     }
 
     public enum State {
-        WAITING, PULLING, FLYING
+        WAITING, PULLING, FLYING,
+        BUTTON_OVERRIDE
     }
 
 }
