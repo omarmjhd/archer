@@ -115,7 +115,7 @@ public class ResultMapActivity extends FragmentActivity {
         ).title("Target");
 
 
-        double heading = SphericalUtil.computeHeading(mSource, mHit);
+        double heading = SphericalUtil.computeHeading(mSource, mHit) + 180;
 
         MarkerOptions animatedMarkerOptions = new MarkerOptions()
                 .position(mSource)
@@ -132,6 +132,12 @@ public class ResultMapActivity extends FragmentActivity {
         MarkerAnimation.animateMarkerToGB(mAnimatedMarker, mHit, mLatLngInterpolator);
 
         hitSensor();
+
+        mMap.addPolyline(new PolylineOptions().add(mSource, mHit)
+                        .width(3)
+                        .color(Color.RED)
+        );
+
 
         CameraUpdate center = CameraUpdateFactory.newLatLng(mHit);
         CameraUpdate zoom=CameraUpdateFactory.zoomTo(10);
