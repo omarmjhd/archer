@@ -118,7 +118,7 @@ public class ResultMapActivity extends FragmentActivity {
 
         MarkerOptions animatedMarkerOptions = new MarkerOptions().position(mSource).icon(
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)
-        ).title("Animated").icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("arrow", 100, 100)));
+        ).title("Animated").icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("arrow.png", 20, 20)));
 
         mMap.addMarker(targetMarker);
 
