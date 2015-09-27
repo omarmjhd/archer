@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.SphericalUtil;
@@ -32,6 +33,7 @@ public class ResultMapActivity extends FragmentActivity {
     private LatLng mTarget;
     private LatLng mSource;
     private Circle mCircle;
+    private Marker mAnimatedMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,8 +114,18 @@ public class ResultMapActivity extends FragmentActivity {
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
         ).title("Hit");
 
+        MarkerOptions animatedMarkerOptions = new MarkerOptions().position(mSource).icon(
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)
+        ).title("Animated");
+
+        mAnimatedMarker = mMap.addMarker(animatedMarkerOptions);
+
         mMap.addMarker(hitMarker);
         mMap.addMarker(targetMarker);
+
+        LatLngInterpolator mLatLngInterpolator = new LatLngInterpolator.Spherical();
+        MarkerAnimation.animateMarkerToGB(mAnimatedMarker, mTarget, mLatLngInterpolator);
+
         hitSensor();
 
         mMap.addPolyline(new PolylineOptions().add(mSource, mHit)
