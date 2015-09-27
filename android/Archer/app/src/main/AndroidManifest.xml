@@ -39,11 +39,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="apps.bunch.im.archer.ArcherActivity" />
         </activity>
-        <activity
-            android:name=".TargetMapActivity"
-            android:label="@string/title_activity_choose_target" >
-
-        </activity>
 
         <meta-data
             android:name="com.google.android.gms.version"

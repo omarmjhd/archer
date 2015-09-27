@@ -41,6 +41,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.SphericalUtil;
 import com.thalmic.myo.AbstractDeviceListener;
 import com.thalmic.myo.Arm;
 import com.thalmic.myo.DeviceListener;
@@ -82,6 +83,7 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
 
     private TextView mStateView;
     private TextView mOrientationView;
+    private TextView mHeadingView;
     private Button mSelectButton;
     private ProgressBar mStrengthBar;
     private boolean mMyoConnected = false;
@@ -298,6 +300,7 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
 
         mStateView = (TextView) findViewById(R.id.state);
         mOrientationView = (TextView) findViewById(R.id.orientation);
+        mHeadingView = (TextView) findViewById(R.id.heading);
         mStrengthBar = (ProgressBar) findViewById(R.id.strength_bar);
         mSelectButton = (Button) findViewById(R.id.select_button);
 
@@ -393,7 +396,8 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
                         mOrientation[0], mOrientation[1], mOrientation[2]));
             }
         }
-
+        //double heading = SphericalUtil.computeHeading(mSource, mTarget);
+        //mHeadingView.setText("Heading: " + Double.toString(heading));
     }
 
     @Override

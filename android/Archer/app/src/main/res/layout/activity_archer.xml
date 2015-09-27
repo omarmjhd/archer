@@ -51,8 +51,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Phone Orientation"
-            android:id="@+id/orientation"
-            android:layout_below="@+id/state" />
+            android:id="@+id/orientation" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Heading"
+            android:id="@+id/heading"
+            android:layout_below="@+id/orientation" />
 
     </LinearLayout>
 
