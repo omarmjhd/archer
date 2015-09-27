@@ -6,6 +6,8 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -28,6 +30,8 @@ public class ResultMapActivity extends FragmentActivity {
     public static final String HIT_LONGITUDE = "im.bunch.apps.archer.HIT_LONGITUDE";
     public static final String HIT_LATITUDE = "im.bunch.apps.archer.HIT_LATITUDE";
 
+    public static final double RADIUS_DISTANCE_RATIO = 0.1;
+
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private LatLng mHit;
     private LatLng mTarget;
@@ -49,7 +53,7 @@ public class ResultMapActivity extends FragmentActivity {
 
         mCircle = mMap.addCircle(new CircleOptions()
                 .center(mTarget)
-                .radius(0.1 * distanceBetweenSourceTarget())
+                .radius(RADIUS_DISTANCE_RATIO * distanceBetweenSourceTarget())
                 .strokeColor(Color.BLACK)
                 .fillColor(Color.argb(100, 215, 44, 44)));
 
@@ -82,6 +86,7 @@ public class ResultMapActivity extends FragmentActivity {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
+            Log.d(LOG_TAG, "mMap is null");
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
             // Check if we were successful in obtaining the map.
@@ -109,18 +114,13 @@ public class ResultMapActivity extends FragmentActivity {
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
         ).title("Target");
 
-        /*MarkerOptions hitMarker = new MarkerOptions().position(mHit).icon(
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
-        ).title("Hit");*/
-
         MarkerOptions animatedMarkerOptions = new MarkerOptions().position(mSource).icon(
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)
-        ).title("Animated");
+        ).title("Animated").icon(BitmapDescriptorFactory.fromResource(R.drawable.arrow));
+
+        mMap.addMarker(targetMarker);
 
         mAnimatedMarker = mMap.addMarker(animatedMarkerOptions);
-
-        //mMap.addMarker(hitMarker);
-        mMap.addMarker(targetMarker);
 
         LatLngInterpolator mLatLngInterpolator = new LatLngInterpolator.Spherical();
         MarkerAnimation.animateMarkerToGB(mAnimatedMarker, mHit, mLatLngInterpolator);
@@ -132,6 +132,12 @@ public class ResultMapActivity extends FragmentActivity {
                         .color(Color.RED)
         );
 
+
+        CameraUpdate center = CameraUpdateFactory.newLatLng(mHit);
+        CameraUpdate zoom=CameraUpdateFactory.zoomTo(10);
+
+        mMap.moveCamera(center);
+        mMap.animateCamera(zoom);
     }
 
     private double distanceFromTarget() {
@@ -144,7 +150,7 @@ public class ResultMapActivity extends FragmentActivity {
 
     private void hitSensor() {
 
-        if (distanceFromTarget() < 0.1 * distanceBetweenSourceTarget()) { //abitrarily high to test
+        if (distanceFromTarget() < RADIUS_DISTANCE_RATIO * distanceBetweenSourceTarget()) { //abitrarily high to test
             mCircle.setFillColor(Color.argb(100, 44, 215, 44));
         }
 
