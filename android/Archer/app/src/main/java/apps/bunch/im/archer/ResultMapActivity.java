@@ -136,7 +136,18 @@ public class ResultMapActivity extends FragmentActivity {
 
         hitSensor();
 
+        mMap.addPolyline(new PolylineOptions().add(mSource, mHit)
+                        .width(3)
+                        .color(Color.RED)
+        );
+
+
         /*
+        
+        
+        LatLngInterpolator mLatLngInterpolator = new LatLngInterpolator.Spherical();
+        MarkerAnimation.animateMarkerToGB(mAnimatedMarker, mHit, mLatLngInterpolator);
+        
         CameraUpdate center = CameraUpdateFactory.newLatLng(mHit);
         CameraUpdate zoom=CameraUpdateFactory.zoomTo(10);
 
