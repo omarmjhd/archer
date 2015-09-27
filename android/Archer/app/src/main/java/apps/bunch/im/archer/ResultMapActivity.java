@@ -117,11 +117,11 @@ public class ResultMapActivity extends FragmentActivity {
                 .center(mTarget)
                 .radius(10000)
                 .strokeColor(Color.BLACK)
-                .fillColor(Color.argb(215, 44, 44, 0)));
+                .fillColor(Color.argb(100, 215, 44, 44)));
 
         if (distanceCalculation() < 1000) { //abitrarily high to test
 
-            circle.setFillColor(Color.argb(44, 215, 44, 0));
+            circle.setFillColor(Color.argb(100, 44, 215, 44));
 
         }
     }
