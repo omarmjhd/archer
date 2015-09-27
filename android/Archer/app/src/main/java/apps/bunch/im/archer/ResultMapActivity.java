@@ -13,6 +13,8 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.SphericalUtil;
+
 import android.location.Location;
 
 
@@ -126,18 +128,10 @@ public class ResultMapActivity extends FragmentActivity {
         }
     }
 
-    private float distanceCalculation() {
+    private double distanceCalculation() {
 
-        Location target = new Location("Target");
-        target.setLatitude(mTarget.latitude);
-        target.setLongitude(mTarget.longitude);
-
-        Location hit = new Location("Hit");
-        target.setLatitude(mHit.latitude);
-        target.setLongitude(mHit.longitude);
-
-        float distance = hit.distanceTo(target);
-        Log.d(LOG_TAG, "Distance from hit to target: " + distance);
+        double distance = SphericalUtil.computeDistanceBetween(mTarget, mHit);
+        Log.d(LOG_TAG, "Distance from hit to target: " + Double.toString(distance));
 
         return distance; //distanceTo returns meters
     }
