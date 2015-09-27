@@ -120,7 +120,7 @@ public class ResultMapActivity extends FragmentActivity {
                 .fillColor(Color.argb(100, 215, 44, 44)));
 
         if (distanceCalculation() < 1000) { //abitrarily high to test
-
+            Log.d(LOG_TAG, "Inside distanceCalculation() if statement: ");
             circle.setFillColor(Color.argb(100, 44, 215, 44));
 
         }
@@ -136,6 +136,9 @@ public class ResultMapActivity extends FragmentActivity {
         target.setLatitude(mHit.latitude);
         target.setLongitude(mHit.longitude);
 
-        return hit.distanceTo(target); //distanceTo returns meters
+        float distance = hit.distanceTo(target);
+        Log.d(LOG_TAG, "Distance from hit to target: " + distance);
+
+        return distance; //distanceTo returns meters
     }
 }
