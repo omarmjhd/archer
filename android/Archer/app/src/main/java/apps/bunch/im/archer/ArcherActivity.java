@@ -67,6 +67,7 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
     private TextView mOrientationView;
     private TextView mHeadingView;
     private Button mSelectButton;
+    private TextView mAngleView;
     private ProgressBar mStrengthBar;
     private boolean mMyoConnected = false;
     private State mState;
@@ -385,14 +386,14 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
                 mOrientations[index++] = mOrientation;
                 index %= 5;
                 movingAverage();
-                mOrientationView.setText(String.format("Orientation (y,p,r) => %.2f, %.2f, %.2f",
-                        mOrientationAverage[0], mOrientationAverage[1], mOrientationAverage[2]));
+                mOrientationView.setText(String.format("Compass: %.1f", Math.toDegrees(mOrientation[0])+180));
+                mAngleView.setText(String.format("Angle: %.1f", 90+Math.toDegrees(mOrientation[1])));
             }
         }
 
         if (mSource != null && mTarget != null) {
             double heading = SphericalUtil.computeHeading(mSource, mTarget);
-            mHeadingView.setText(String.format("Heading: %.3f", heading));
+            mHeadingView.setText(String.format("Target heading: %.1f", heading));
         }
     }
 
@@ -436,6 +437,7 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
         mHeadingView = (TextView) findViewById(R.id.heading);
         mStrengthBar = (ProgressBar) findViewById(R.id.strength_bar);
         mSelectButton = (Button) findViewById(R.id.select_button);
+        mAngleView = (TextView) findViewById(R.id.angle);
 
         mSource = new LatLng(0, 0);
         mTarget = new LatLng(0, 0);

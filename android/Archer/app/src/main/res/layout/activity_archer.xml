@@ -50,8 +50,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Phone Orientation"
+            android:text="Compass"
             android:id="@+id/orientation" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bow Angle"
+            android:id="@+id/angle" />
 
         <TextView
             android:layout_width="wrap_content"
