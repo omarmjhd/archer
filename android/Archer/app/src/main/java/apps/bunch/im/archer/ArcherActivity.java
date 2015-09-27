@@ -1,6 +1,7 @@
 package apps.bunch.im.archer;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.hardware.Sensor;
@@ -10,22 +11,40 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.plus.People;
+import com.google.android.gms.plus.Plus;
+import com.google.android.gms.plus.model.people.Person;
+import com.google.android.gms.plus.model.people.PersonBuffer;
 import com.thalmic.myo.AbstractDeviceListener;
 import com.thalmic.myo.Arm;
 import com.thalmic.myo.DeviceListener;
@@ -37,9 +56,13 @@ import com.thalmic.myo.Vector3;
 import com.thalmic.myo.XDirection;
 import com.thalmic.myo.scanner.ScanActivity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ArcherActivity extends FragmentActivity implements SensorEventListener,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener,
+        ResultCallback<People.LoadPeopleResult> {
 
     public static String LOG_TAG = "ArcherActivity";
     public static String STATE_RESOLVING_KEY = "StateResolvingKey";
@@ -47,6 +70,7 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
     public static String TARGET_LONGITUDE_KEY = "TargetLongitudeKey";
     public static String HIT_LATITUDE_KEY = "HitLatitudeKey";
     public static String HIT_LONGITUDE_KEY = "HitLongitudeKey";
+    public static final int PLACE_PICKER_REQUEST = 1;
     public static double ACCEL_UNIT_CONVERSION = (0.98 / 1000); // convert to meters
     private static final int REQUEST_RESOLVE_ERROR = 1001;
     private static final int MAX_DISPLAY_FORCE = 100; // max force to display (can go higher)
@@ -64,10 +88,7 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
 
     private TextView mStateView;
     private TextView mOrientationView;
-    private TextView mMyoAcceleration;
-    private TextView mMyoOrientation;
-    private TextView mGravity;
-    private TextView mLinearAcceleration;
+    private Button mSelectButton;
     private ProgressBar mStrengthBar;
     private boolean mMyoConnected = false;
     private boolean mMyoSynced = false;
@@ -83,6 +104,8 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
     private boolean mResolvingError = false;
 
     private long mStartPullTime, mEndPullTime;
+
+    private boolean mTargetSelected = false;
 
 
     // Classes that inherit from AbstractDeviceListener can be used to receive events from Myo devices.
@@ -281,11 +304,8 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
 
         mStateView = (TextView) findViewById(R.id.state);
         mOrientationView = (TextView) findViewById(R.id.orientation);
-        mMyoAcceleration = (TextView) findViewById(R.id.myo_acceleration);
-        mMyoOrientation = (TextView) findViewById(R.id.myo_orientation);
-        mGravity = (TextView) findViewById(R.id.gravity);
-        mLinearAcceleration = (TextView) findViewById(R.id.linear_accel);
         mStrengthBar = (ProgressBar) findViewById(R.id.strength_bar);
+        mSelectButton = (Button) findViewById(R.id.select_button);
 
         // First, we initialize the Hub singleton with an application identifier.
         Hub hub = Hub.getInstance();
@@ -305,6 +325,11 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
         // Create a GoogleApiClient instance
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
+                .addApi(Plus.API)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .addScope(Plus.SCOPE_PLUS_LOGIN)
+                .addScope(Plus.SCOPE_PLUS_PROFILE)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
@@ -314,7 +339,6 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
         if (!mMyoConnected) {
             // automatically show connect dialog
             onScanActionSelected();
-
         }
 
         // begin in the waiting state
@@ -483,11 +507,27 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
                 mGoogleApiClient);
         mSource = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
         Log.i(LOG_TAG, mSource.toString());
+
+        /*
+        Plus.PeopleApi.loadVisible(mGoogleApiClient, null)
+                .setResultCallback(this);
+        */
+        if (!mTargetSelected) {
+            openPicker();
+            mTargetSelected = true;
+        }
+
+        mSelectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openPicker();
+            }
+        });
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-
+        mGoogleApiClient.connect();
     }
 
     @Override
@@ -541,6 +581,25 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
         mTarget = new LatLng(mTargetLat, mTargetLong);
     }
 
+
+    @Override
+    public void onResult(People.LoadPeopleResult peopleData) {
+        if (peopleData.getStatus().getStatusCode() == CommonStatusCodes.SUCCESS) {
+            PersonBuffer personBuffer = peopleData.getPersonBuffer();
+            try {
+                int count = personBuffer.getCount();
+                for (int i = 0; i < count; i++) {
+                    Log.d(LOG_TAG, "Display name: " + personBuffer.get(i).getDisplayName());
+                    Log.d(LOG_TAG, "Location: " + personBuffer.get(i).getCurrentLocation());
+                }
+            } finally {
+                personBuffer.release();
+            }
+        } else {
+            Log.e(LOG_TAG, "Error requesting visible circles: " + peopleData.getStatus());
+        }
+    }
+
     /**
      * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
      * installed) and the map has not already been instantiated.. This will ensure that we only ever
@@ -577,36 +636,33 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
      */
     private void setUpMap() {
         mTarget = new LatLng(0,0);
-        mTargetMarker = mMap.addMarker(new MarkerOptions()
-                .position(mTarget).title("Target")
-                .draggable(true));
+        mTargetMarker = mMap.addMarker(new MarkerOptions().position(
+                new LatLng(0,0)).title("Target"));
+        updateMarker();
 
         mMap.setMyLocationEnabled(true);
+    }
 
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                mTarget = latLng;
-                mTargetMarker.setPosition(mTarget);
+    private void updateMarker() {
+        mTargetMarker.setPosition(mTarget);
+
+        CameraUpdate center = CameraUpdateFactory.newLatLng(mTarget);
+        CameraUpdate zoom=CameraUpdateFactory.zoomTo(10);
+
+        mMap.moveCamera(center);
+        mMap.animateCamera(zoom);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PLACE_PICKER_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlacePicker.getPlace(data, this);
+                mTarget = place.getLatLng();
+                String toastMsg = String.format("Place: %s", place.getName());
+                Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
+                updateMarker();
             }
-        });
-
-        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
-            @Override
-            public void onMarkerDragStart(Marker marker) {
-
-            }
-
-            @Override
-            public void onMarkerDrag(Marker marker) {
-
-            }
-
-            @Override
-            public void onMarkerDragEnd(Marker marker) {
-
-            }
-        });
+        }
     }
 
     private void updateStrengthBar() {
@@ -615,5 +671,18 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
             Math.min(MAX_DISPLAY_FORCE, force / MAX_DISPLAY_FORCE * 100)
         );
         mStrengthBar.setProgress(percent);
+    }
+
+    private void openPicker() {
+
+        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+
+        try {
+            startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
+        } catch (GooglePlayServicesRepairableException e) {
+            e.printStackTrace();
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }
     }
 }

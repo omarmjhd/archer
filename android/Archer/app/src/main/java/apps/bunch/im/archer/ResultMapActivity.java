@@ -6,6 +6,8 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -28,6 +30,8 @@ public class ResultMapActivity extends FragmentActivity {
     public static final String HIT_LONGITUDE = "im.bunch.apps.archer.HIT_LONGITUDE";
     public static final String HIT_LATITUDE = "im.bunch.apps.archer.HIT_LATITUDE";
 
+    public static final double RADIUS_DISTANCE_RATIO = 0.1;
+
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private LatLng mHit;
     private LatLng mTarget;
@@ -49,7 +53,7 @@ public class ResultMapActivity extends FragmentActivity {
 
         mCircle = mMap.addCircle(new CircleOptions()
                 .center(mTarget)
-                .radius(10000)
+                .radius(RADIUS_DISTANCE_RATIO * distanceBetweenSourceTarget())
                 .strokeColor(Color.BLACK)
                 .fillColor(Color.argb(100, 215, 44, 44)));
 
@@ -123,6 +127,17 @@ public class ResultMapActivity extends FragmentActivity {
 
         hitSensor();
 
+        mMap.addPolyline(new PolylineOptions().add(mSource, mHit)
+                        .width(3)
+                        .color(Color.RED)
+        );
+
+
+        CameraUpdate center = CameraUpdateFactory.newLatLng(mHit);
+        CameraUpdate zoom=CameraUpdateFactory.zoomTo(10);
+
+        mMap.moveCamera(center);
+        mMap.animateCamera(zoom);
     }
 
     private double distanceFromTarget() {
@@ -135,7 +150,7 @@ public class ResultMapActivity extends FragmentActivity {
 
     private void hitSensor() {
 
-        if (distanceFromTarget() < 0.1 * distanceBetweenSourceTarget()) { //abitrarily high to test
+        if (distanceFromTarget() < RADIUS_DISTANCE_RATIO * distanceBetweenSourceTarget()) { //abitrarily high to test
             mCircle.setFillColor(Color.argb(100, 44, 215, 44));
         }
 

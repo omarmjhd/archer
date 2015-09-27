@@ -32,6 +32,12 @@
             tools:context="apps.bunch.im.archer.ArcherActivity"
             android:name="com.google.android.gms.maps.SupportMapFragment" />
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Target"
+            android:id="@+id/select_button" />
+
     </FrameLayout>
 
     <LinearLayout
@@ -47,34 +53,6 @@
             android:text="Phone Orientation"
             android:id="@+id/orientation"
             android:layout_below="@+id/state" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Myo Acceleration"
-            android:id="@+id/myo_acceleration"
-            android:layout_below="@+id/orientation" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Myo Orientation"
-            android:id="@+id/myo_orientation"
-            android:layout_below="@+id/myo_acceleration" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Expected Gravity"
-            android:id="@+id/gravity"
-            android:layout_below="@+id/myo_orientation" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Linear Acceleration"
-            android:id="@+id/linear_accel"
-            android:layout_below="@+id/gravity" />
 
     </LinearLayout>
 
