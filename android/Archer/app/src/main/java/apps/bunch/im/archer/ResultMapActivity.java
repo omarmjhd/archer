@@ -115,7 +115,7 @@ public class ResultMapActivity extends FragmentActivity {
         ).title("Target");
 
 
-        double heading = SphericalUtil.computeHeading(mSource, mHit) + 180;
+        double heading = SphericalUtil.computeHeading(mSource, mHit);
 
         MarkerOptions animatedMarkerOptions = new MarkerOptions()
                 .position(mSource)
