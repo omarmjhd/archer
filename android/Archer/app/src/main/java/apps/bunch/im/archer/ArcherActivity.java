@@ -46,6 +46,8 @@ import com.thalmic.myo.Vector3;
 import com.thalmic.myo.XDirection;
 import com.thalmic.myo.scanner.ScanActivity;
 
+import java.util.Arrays;
+
 public class ArcherActivity extends FragmentActivity implements SensorEventListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
@@ -78,6 +80,7 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
     private float[] gravity = new float[3];
     private float[] geomagnetic = new float[3];
     private float[] mOrientation = new float[3];
+    private float[] mOrientationAverage = new float[3];
     private float[][] mOrientations = new float[sampleSize][3];
     private boolean mResolvingError = false;
     private long mStartPullTime, mEndPullTime;
@@ -383,15 +386,15 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
                 SensorManager.getOrientation(R, mOrientation);
                 mOrientations[index++] = mOrientation;
                 index %= 5;
-                float[] foo = movingAverage();
+                movingAverage();
                 mOrientationView.setText(String.format("Orientation (y,p,r) => %.2f, %.2f, %.2f",
-                        Math.toDegrees(foo[0]), Math.toDegrees(foo[1]), Math.toDegrees(foo[2])));
+                        mOrientationAverage[0], mOrientationAverage[1], mOrientationAverage[2]));
             }
         }
 
         if (mSource != null && mTarget != null) {
             double heading = SphericalUtil.computeHeading(mSource, mTarget);
-            mHeadingView.setText(String.format("Heading: %.3f", Double.toString(heading)));
+            mHeadingView.setText(String.format("Heading: %.3f", heading));
         }
     }
 
@@ -579,17 +582,16 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
 
     }
 
-    private float[] movingAverage() {
-        float[] result = new float[3];
+    private void movingAverage() {
+        mOrientationAverage = new float[3];
         for (int i = 0; i < mOrientations.length; i++) {
-            result[0] = mOrientations[i][0];
-            result[1] = mOrientations[i][1];
-            result[2] = mOrientations[i][2];
+            mOrientationAverage[0] += mOrientations[i][0];
+            mOrientationAverage[1] += mOrientations[i][1];
+            mOrientationAverage[2] += mOrientations[i][2];
         }
-        result[0] /= mOrientations.length;
-        result[1] /= mOrientations.length;
-        result[2] /= mOrientations.length;
-        return result;
+        mOrientationAverage[0] /= mOrientations.length;
+        mOrientationAverage[1] /= mOrientations.length;
+        mOrientationAverage[2] /= mOrientations.length;
     }
 
     private void setStateFlying() {
@@ -615,9 +617,10 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
         // orientation made up = [0.8, -1.4, 0.26]
         //double force = timeToForce(mStartPullTime, mEndPullTime);
         double force = PhysicsEngine.TimeToForce(mStartPullTime, mEndPullTime);
+        movingAverage();
         LatLng mHitLatLng = PhysicsEngine.arrowFlightLatLng(
                 new LatLng(mSource.latitude, mSource.longitude),
-                force, mOrientation);
+                force, mOrientationAverage);
         Log.i(LOG_TAG, "Using force: " + Double.toString(force));
         Log.i(LOG_TAG, "Using orientation: " + Double.toString(mOrientation[0]) + ", "
                 + Double.toString(mOrientation[1]) + ", "
