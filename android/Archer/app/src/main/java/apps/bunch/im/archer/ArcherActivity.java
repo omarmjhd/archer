@@ -38,7 +38,9 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.SphericalUtil;
@@ -103,6 +105,10 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
 
     private boolean mTargetSelected = false;
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
 
     // Classes that inherit from AbstractDeviceListener can be used to receive events from Myo devices.
     // If you do not override an event, the default behavior is to do nothing.
@@ -304,6 +310,9 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
         mStrengthBar = (ProgressBar) findViewById(R.id.strength_bar);
         mSelectButton = (Button) findViewById(R.id.select_button);
 
+        mSource = new LatLng(0, 0);
+        mTarget = new LatLng(0, 0);
+
         // First, we initialize the Hub singleton with an application identifier.
         Hub hub = Hub.getInstance();
         if (!hub.init(this, getPackageName())) {
@@ -315,6 +324,12 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
 
         // Next, register for DeviceListener callbacks.
         hub.addListener(mListener);
+
+        // Then, scan for available Myo devices and connect
+        if (!mMyoConnected) {
+            // automatically show connect dialog
+            onScanActionSelected();
+        }
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -329,11 +344,6 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
                 .build();
 
         setUpMapIfNeeded();
-
-        if (!mMyoConnected) {
-            // automatically show connect dialog
-            onScanActionSelected();
-        }
 
         // begin in the waiting state
         setStateWaiting();
@@ -396,8 +406,11 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
                         mOrientation[0], mOrientation[1], mOrientation[2]));
             }
         }
-        //double heading = SphericalUtil.computeHeading(mSource, mTarget);
-        //mHeadingView.setText("Heading: " + Double.toString(heading));
+
+        if (mSource != null && mTarget != null) {
+            double heading = SphericalUtil.computeHeading(mSource, mTarget);
+            mHeadingView.setText("Heading: " + Double.toString(heading));
+        }
     }
 
     @Override
@@ -562,7 +575,7 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
         if (savedInstanceState.keySet().contains(STATE_RESOLVING_KEY)) {
             mResolvingError = savedInstanceState.getBoolean(STATE_RESOLVING_KEY);
         }
-        double mTargetLat = 0.0, mTargetLong = 0.0;
+        double mTargetLat = 32.0, mTargetLong = -84.0;
         if (savedInstanceState.keySet().contains(TARGET_LATITUDE_KEY)) {
             mTargetLat = savedInstanceState.getDouble(TARGET_LATITUDE_KEY);
         }
@@ -607,22 +620,34 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mTarget = new LatLng(0,0);
-        mTargetMarker = mMap.addMarker(new MarkerOptions().position(
-                new LatLng(0,0)).title("Target"));
-        updateMarker();
+        mTarget = new LatLng(0, 0);
+        mTargetMarker = mMap.addMarker(new MarkerOptions().position(mTarget).title("Target"));
+        //updateMarker();
 
         mMap.setMyLocationEnabled(true);
+
+        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            @Override
+            public void onMapLoaded() {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(
+                        new LatLngBounds.Builder().include(mTarget).include(mSource).build(), 256));
+                mMap.setOnCameraChangeListener(null);
+            }
+        });
+
     }
 
     private void updateMarker() {
         mTargetMarker.setPosition(mTarget);
-
+/*
         CameraUpdate center = CameraUpdateFactory.newLatLng(mTarget);
         CameraUpdate zoom=CameraUpdateFactory.zoomTo(10);
 
         mMap.moveCamera(center);
         mMap.animateCamera(zoom);
+*/
+        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds.Builder().include(mSource).include(mTarget).build(), 256));
+
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

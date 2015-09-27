@@ -14,6 +14,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -30,7 +31,7 @@ public class ResultMapActivity extends FragmentActivity {
     public static final String HIT_LONGITUDE = "im.bunch.apps.archer.HIT_LONGITUDE";
     public static final String HIT_LATITUDE = "im.bunch.apps.archer.HIT_LATITUDE";
 
-    public static final double RADIUS_DISTANCE_RATIO = 0.1;
+    public static final double RADIUS_DISTANCE_RATIO = 0.25;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private LatLng mHit;
@@ -114,7 +115,7 @@ public class ResultMapActivity extends FragmentActivity {
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
         ).title("Target");
 
-
+        /*
         double heading = SphericalUtil.computeHeading(mSource, mHit);
 
         MarkerOptions animatedMarkerOptions = new MarkerOptions()
@@ -123,21 +124,44 @@ public class ResultMapActivity extends FragmentActivity {
                 .anchor((float) 0.5, 0)
                 .title("Animated")
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_arrow));
+        */
+
+        MarkerOptions animatedMarkerOptions = new MarkerOptions()
+                .position(mSource).title("Animated")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
 
         mMap.addMarker(targetMarker);
 
         mAnimatedMarker = mMap.addMarker(animatedMarkerOptions);
 
-        LatLngInterpolator mLatLngInterpolator = new LatLngInterpolator.Spherical();
-        MarkerAnimation.animateMarkerToGB(mAnimatedMarker, mHit, mLatLngInterpolator);
-
         hitSensor();
 
+        /*
         CameraUpdate center = CameraUpdateFactory.newLatLng(mHit);
         CameraUpdate zoom=CameraUpdateFactory.zoomTo(10);
 
         mMap.moveCamera(center);
         mMap.animateCamera(zoom);
+
+        */
+
+        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            @Override
+            public void onMapLoaded() {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(
+                        new LatLngBounds.Builder().include(mTarget).include(mSource).build(), 256));
+
+                LatLngInterpolator mLatLngInterpolator = new LatLngInterpolator.Spherical();
+                MarkerAnimation.animateMarkerToGB(mAnimatedMarker, mHit, mLatLngInterpolator);
+
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(
+                        new LatLngBounds.Builder().include(mSource).include(mTarget).include(mHit).build(),
+                        256
+                ));
+
+                mMap.setOnMapLoadedCallback(null);
+            }
+        });
     }
 
     private double distanceFromTarget() {
