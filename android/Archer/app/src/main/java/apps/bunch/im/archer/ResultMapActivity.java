@@ -132,10 +132,6 @@ public class ResultMapActivity extends FragmentActivity {
 
         hitSensor();
 
-        mMap.addPolyline(new PolylineOptions().add(mSource, mHit)
-                        .width(3)
-                        .color(Color.RED)
-        );
 
 
         CameraUpdate center = CameraUpdateFactory.newLatLng(mHit);
