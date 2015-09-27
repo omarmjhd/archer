@@ -9,6 +9,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,7 +22,10 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.thalmic.myo.AbstractDeviceListener;
 import com.thalmic.myo.Arm;
 import com.thalmic.myo.DeviceListener;
@@ -33,7 +37,7 @@ import com.thalmic.myo.Vector3;
 import com.thalmic.myo.XDirection;
 import com.thalmic.myo.scanner.ScanActivity;
 
-public class ArcherActivity extends Activity implements SensorEventListener,
+public class ArcherActivity extends FragmentActivity implements SensorEventListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
@@ -51,10 +55,12 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         WAITING, PULLING, FLYING
     }
 
-    private double mTargetLong;
-    private double mTargetLat;
-    private double mHitLong;
-    private double mHitLat;
+    private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private Marker mTargetMarker;
+
+    private LatLng mTarget;
+    private LatLng mHit;
+    private LatLng mSource;
 
     private TextView mStateView;
     private TextView mOrientationView;
@@ -74,10 +80,10 @@ public class ArcherActivity extends Activity implements SensorEventListener,
     private float[] gravity = new float[3];
     private float[] geomagnetic = new float[3];
     private float[] mOrientation = new float[3];
-    private Location mCurrentLocation;
     private boolean mResolvingError = false;
 
     private long mStartPullTime, mEndPullTime;
+
 
     // Classes that inherit from AbstractDeviceListener can be used to receive events from Myo devices.
     // If you do not override an event, the default behavior is to do nothing.
@@ -303,16 +309,12 @@ public class ArcherActivity extends Activity implements SensorEventListener,
                 .addOnConnectionFailedListener(this)
                 .build();
 
-        // get this data from the intent
-        Intent intent = getIntent();
-        if (intent != null && intent.getExtras() != null) {
-            mTargetLong = intent.getDoubleExtra(ResultMapActivity.TARGET_LONGITUDE, 0.0);
-            mTargetLat = intent.getDoubleExtra(ResultMapActivity.TARGET_LATITUDE, 0.0);
-        }
+        setUpMapIfNeeded();
 
         if (!mMyoConnected) {
             // automatically show connect dialog
             onScanActionSelected();
+
         }
 
         // begin in the waiting state
@@ -338,6 +340,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         super.onResume();
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         mSensorManager.registerListener(this, mGeomagnetic, SensorManager.SENSOR_DELAY_NORMAL);
+        setUpMapIfNeeded();
         if (mState == State.FLYING) {
             setStateWaiting();
         }
@@ -445,13 +448,13 @@ public class ArcherActivity extends Activity implements SensorEventListener,
 
     private void showMap() {
 
-        Log.i(LOG_TAG, "Target: (" + Double.toString(mTargetLat) + ", "
-                + Double.toString(mTargetLong) + ")");
+        Log.i(LOG_TAG, "Target: (" + Double.toString(mTarget.latitude) + ", "
+                + Double.toString(mTarget.longitude) + ")");
         Intent intent = new Intent(this, ResultMapActivity.class);
-        intent.putExtra(ResultMapActivity.TARGET_LATITUDE, mTargetLat);
-        intent.putExtra(ResultMapActivity.TARGET_LONGITUDE, mTargetLong);
-        intent.putExtra(ResultMapActivity.SOURCE_LATITUDE, mCurrentLocation.getLatitude());
-        intent.putExtra(ResultMapActivity.SOURCE_LONGITUDE, mCurrentLocation.getLongitude());
+        intent.putExtra(ResultMapActivity.TARGET_LATITUDE, mTarget.latitude);
+        intent.putExtra(ResultMapActivity.TARGET_LONGITUDE, mTarget.longitude);
+        intent.putExtra(ResultMapActivity.SOURCE_LATITUDE, mSource.latitude);
+        intent.putExtra(ResultMapActivity.SOURCE_LONGITUDE, mSource.longitude);
         /* Commented out until force, distanceDrawn orientation, and myo are set up */
         // force made up = 100
         // distance drawn made up = 10
@@ -459,7 +462,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         //double force = timeToForce(mStartPullTime, mEndPullTime);
         double force = PhysicsEngine.TimeToForce(mStartPullTime, mEndPullTime);
         LatLng mHitLatLng = PhysicsEngine.arrowFlightLatLng(
-                new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()),
+                new LatLng(mSource.latitude, mSource.longitude),
                 force, mOrientation);
         Log.i(LOG_TAG, "Using force: " + Double.toString(force));
         Log.i(LOG_TAG, "Using orientation: " + Double.toString(mOrientation[0]) + ", "
@@ -476,9 +479,10 @@ public class ArcherActivity extends Activity implements SensorEventListener,
 
     @Override
     public void onConnected(Bundle bundle) {
-        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(
+        Location mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
-        Log.i(LOG_TAG, mCurrentLocation.toString());
+        mSource = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+        Log.i(LOG_TAG, mSource.toString());
     }
 
     @Override
@@ -517,8 +521,8 @@ public class ArcherActivity extends Activity implements SensorEventListener,
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putBoolean(STATE_RESOLVING_KEY, mResolvingError);
-        savedInstanceState.putDouble(TARGET_LATITUDE_KEY, mTargetLat);
-        savedInstanceState.putDouble(TARGET_LONGITUDE_KEY, mTargetLong);
+        savedInstanceState.putDouble(TARGET_LATITUDE_KEY, mTarget.latitude);
+        savedInstanceState.putDouble(TARGET_LONGITUDE_KEY, mTarget.longitude);
         super.onSaveInstanceState(savedInstanceState);
     }
     @Override
@@ -527,12 +531,82 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         if (savedInstanceState.keySet().contains(STATE_RESOLVING_KEY)) {
             mResolvingError = savedInstanceState.getBoolean(STATE_RESOLVING_KEY);
         }
+        double mTargetLat = 0.0, mTargetLong = 0.0;
         if (savedInstanceState.keySet().contains(TARGET_LATITUDE_KEY)) {
             mTargetLat = savedInstanceState.getDouble(TARGET_LATITUDE_KEY);
         }
         if (savedInstanceState.keySet().contains(TARGET_LONGITUDE_KEY)) {
             mTargetLong = savedInstanceState.getDouble(TARGET_LONGITUDE_KEY);
         }
+        mTarget = new LatLng(mTargetLat, mTargetLong);
+    }
+
+    /**
+     * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
+     * installed) and the map has not already been instantiated.. This will ensure that we only ever
+     * call {@link #setUpMap()} once when {@link #mMap} is not null.
+     * <p/>
+     * If it isn't installed {@link SupportMapFragment} (and
+     * {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to
+     * install/update the Google Play services APK on their device.
+     * <p/>
+     * A user can return to this FragmentActivity after following the prompt and correctly
+     * installing/updating/enabling the Google Play services. Since the FragmentActivity may not
+     * have been completely destroyed during this process (it is likely that it would only be
+     * stopped or paused), {@link #onCreate(Bundle)} may not be called again so we should call this
+     * method in {@link #onResume()} to guarantee that it will be called.
+     */
+    private void setUpMapIfNeeded() {
+        // Do a null check to confirm that we have not already instantiated the map.
+        if (mMap == null) {
+            // Try to obtain the map from the SupportMapFragment.
+            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+                    .getMap();
+            // Check if we were successful in obtaining the map.
+            if (mMap != null) {
+                setUpMap();
+            }
+        }
+    }
+
+    /**
+     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
+     * just add a marker near Africa.
+     * <p/>
+     * This should only be called once and when we are sure that {@link #mMap} is not null.
+     */
+    private void setUpMap() {
+        mTarget = new LatLng(0,0);
+        mTargetMarker = mMap.addMarker(new MarkerOptions()
+                .position(mTarget).title("Target")
+                .draggable(true));
+
+        mMap.setMyLocationEnabled(true);
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                mTarget = latLng;
+                mTargetMarker.setPosition(mTarget);
+            }
+        });
+
+        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+
+            }
+        });
     }
 
     private void updateStrengthBar() {

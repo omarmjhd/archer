@@ -39,23 +39,19 @@ public class ResultMapActivity extends FragmentActivity {
         setContentView(R.layout.activity_result_target);
 
         Intent intent = getIntent();
-        Double hitLong = intent.getDoubleExtra(HIT_LONGITUDE, 0.0);
-        Double hitLat = intent.getDoubleExtra(HIT_LATITUDE, 0.0);
-        Double targetLong = intent.getDoubleExtra(TARGET_LONGITUDE, 0.0);
-        Double targetLat = intent.getDoubleExtra(TARGET_LATITUDE, 0.0);
-        Double srcLong = intent.getDoubleExtra(SOURCE_LONGITUDE, 0.0);
-        Double srcLat = intent.getDoubleExtra(SOURCE_LATITUDE, 0.0);
-        mHit = new LatLng(hitLat, hitLong);
-        mSource = new LatLng(srcLat, srcLong);
-        mTarget = new LatLng(targetLat, targetLong);
+        mHit = new LatLng(intent.getDoubleExtra(HIT_LATITUDE, 0.0), intent.getDoubleExtra(HIT_LONGITUDE, 0.0));
+        mSource = new LatLng(intent.getDoubleExtra(SOURCE_LATITUDE, 0.0), intent.getDoubleExtra(SOURCE_LONGITUDE, 0.0));
+        mTarget = new LatLng(intent.getDoubleExtra(TARGET_LATITUDE, 0.0), intent.getDoubleExtra(TARGET_LONGITUDE, 0.0));
+
+        setUpMapIfNeeded();
+
         mCircle = mMap.addCircle(new CircleOptions()
                 .center(mTarget)
                 .radius(10000)
                 .strokeColor(Color.BLACK)
                 .fillColor(Color.argb(100, 215, 44, 44)));
 
-        setUpMapIfNeeded();
-        //mMap.setMyLocationEnabled(true);
+        mMap.setMyLocationEnabled(true);
 
     }
 
@@ -84,6 +80,7 @@ public class ResultMapActivity extends FragmentActivity {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
+            Log.d(LOG_TAG, "mMap is null");
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
             // Check if we were successful in obtaining the map.
@@ -120,8 +117,8 @@ public class ResultMapActivity extends FragmentActivity {
         hitSensor();
 
         mMap.addPolyline(new PolylineOptions().add(mSource, mHit)
-                .width(3)
-                .color(Color.RED)
+                        .width(3)
+                        .color(Color.RED)
         );
 
     }
