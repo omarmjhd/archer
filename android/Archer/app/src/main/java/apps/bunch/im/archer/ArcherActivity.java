@@ -46,8 +46,6 @@ import com.thalmic.myo.Vector3;
 import com.thalmic.myo.XDirection;
 import com.thalmic.myo.scanner.ScanActivity;
 
-import java.util.Arrays;
-
 public class ArcherActivity extends FragmentActivity implements SensorEventListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
@@ -404,6 +402,18 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
 
     }
 
+    private void movingAverage() {
+        mOrientationAverage = new float[3];
+        for (float[] foo : mOrientations) {
+            for (int i = 0; i < foo.length; i++) {
+                mOrientationAverage[i] += foo[i];
+            }
+        }
+        for (int i = 0; i < mOrientationAverage.length; i++) {
+            mOrientationAverage[i] /= sampleSize;
+        }
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PLACE_PICKER_REQUEST) {
             if (resultCode == RESULT_OK) {
@@ -580,18 +590,6 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
         mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(
                 new LatLngBounds.Builder().include(mSource).include(mTarget).build(), 256));
 
-    }
-
-    private void movingAverage() {
-        mOrientationAverage = new float[3];
-        for (int i = 0; i < mOrientations.length; i++) {
-            mOrientationAverage[0] += mOrientations[i][0];
-            mOrientationAverage[1] += mOrientations[i][1];
-            mOrientationAverage[2] += mOrientations[i][2];
-        }
-        mOrientationAverage[0] /= mOrientations.length;
-        mOrientationAverage[1] /= mOrientations.length;
-        mOrientationAverage[2] /= mOrientations.length;
     }
 
     private void setStateFlying() {
