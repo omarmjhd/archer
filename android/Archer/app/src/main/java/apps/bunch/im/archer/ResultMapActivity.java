@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,10 +38,14 @@ public class ResultMapActivity extends FragmentActivity {
     private LatLng mSource;
     private Marker mAnimatedMarker;
 
+    private TextView mDistance;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result_target);
+
+        mDistance = (TextView) findViewById(R.id.distance);
 
         Intent intent = getIntent();
         mHit = new LatLng(intent.getDoubleExtra(HIT_LATITUDE, 0.0), intent.getDoubleExtra(HIT_LONGITUDE, 0.0));
@@ -107,7 +112,13 @@ public class ResultMapActivity extends FragmentActivity {
 
         int fill = Color.argb(100, 216, 44, 44);
 
-        if (distanceFromTarget() < RADIUS_DISTANCE_RATIO * distanceBetweenSourceTarget()) { //abitrarily high to test
+        double distance = distanceFromTarget();
+
+        Log.i(LOG_TAG, "Distance hit->target: " + Double.toString(distance));
+
+        mDistance.setText(String.format("Distance: %.3f meters", distance));
+
+        if (distance < RADIUS_DISTANCE_RATIO * distanceBetweenSourceTarget()) { //abitrarily high to test
             fill = Color.argb(100, 44, 216, 44);
         }
 
