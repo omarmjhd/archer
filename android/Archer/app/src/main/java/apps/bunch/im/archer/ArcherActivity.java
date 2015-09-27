@@ -427,7 +427,6 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         mEndPullTime = System.currentTimeMillis();
         mState = State.FLYING;
         mStateView.setText(getString(R.string.state_flying));
-        double force = timeToForce(mStartPullTime, mEndPullTime);
         showMap();
     }
 
@@ -458,7 +457,7 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         // distance drawn made up = 10
         // orientation made up = [0.8, -1.4, 0.26]
         //double force = timeToForce(mStartPullTime, mEndPullTime);
-        double force = 3000; //3000000
+        double force = PhysicsEngine.TimeToForce(mStartPullTime, mEndPullTime);
         LatLng mHitLatLng = PhysicsEngine.arrowFlightLatLng(
                 new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()),
                 force, mOrientation);
@@ -536,14 +535,8 @@ public class ArcherActivity extends Activity implements SensorEventListener,
         }
     }
 
-    private double timeToForce(long startTime, long endTime) {
-        double deltaTime = (double) (endTime - startTime) / 1000;
-        Log.d(LOG_TAG, Double.toString(10*deltaTime));
-        return deltaTime;
-    }
-
     private void updateStrengthBar() {
-        double force = timeToForce(mStartPullTime, mEndPullTime);
+        double force = PhysicsEngine.TimeToForce(mStartPullTime, mEndPullTime);
         int percent = (int) Math.round(
             Math.min(MAX_DISPLAY_FORCE, force / MAX_DISPLAY_FORCE * 100)
         );
