@@ -16,6 +16,8 @@ public class PhysicsEngine {
     public static final double mass = .03; //kg
     public static final double gravity = 9.81; //m/s^2
 
+    public static final double MAX_FORCE = 2.5e7;
+
     /**
      * @param force force that arrow is exerting in Newtons
      * @return acceleration of the arrow in m/s^2
@@ -115,11 +117,12 @@ public class PhysicsEngine {
     public static double TimeToForce(long startTime, long endTime) {
         double delta = (double) (endTime - startTime) / 1000;
         Log.d(LOG_TAG, "Pull time: " + Double.toString(delta));
-        double a = 2.5e7;
-        double b = 1;
-        double c = 1e5;
-        double d = -2.5e2;
+        double a = 7e8;
+        double b = 3e2;
+        double c = 1e7;
+        double d = -7e1 ;
         double force = a / (b + c * Math.pow(Math.E, -delta)) + d;
+        Log.d(LOG_TAG, "Percent of max force: " + Double.toString(force / MAX_FORCE));
         return force;
     }
 
