@@ -41,10 +41,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.plus.People;
-import com.google.android.gms.plus.Plus;
-import com.google.android.gms.plus.model.people.Person;
-import com.google.android.gms.plus.model.people.PersonBuffer;
 import com.thalmic.myo.AbstractDeviceListener;
 import com.thalmic.myo.Arm;
 import com.thalmic.myo.DeviceListener;
@@ -61,8 +57,7 @@ import java.util.List;
 
 public class ArcherActivity extends FragmentActivity implements SensorEventListener,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        ResultCallback<People.LoadPeopleResult> {
+        GoogleApiClient.OnConnectionFailedListener {
 
     public static String LOG_TAG = "ArcherActivity";
     public static String STATE_RESOLVING_KEY = "StateResolvingKey";
@@ -71,9 +66,8 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
     public static String HIT_LATITUDE_KEY = "HitLatitudeKey";
     public static String HIT_LONGITUDE_KEY = "HitLongitudeKey";
     public static final int PLACE_PICKER_REQUEST = 1;
-    public static double ACCEL_UNIT_CONVERSION = (0.98 / 1000); // convert to meters
     private static final int REQUEST_RESOLVE_ERROR = 1001;
-    private static final int MAX_DISPLAY_FORCE = 100; // max force to display (can go higher)
+    private static final int MAX_DISPLAY_FORCE = 233263; // max force to display
 
     public enum State {
         WAITING, PULLING, FLYING
@@ -325,11 +319,8 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
         // Create a GoogleApiClient instance
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
-                .addApi(Plus.API)
                 .addApi(Places.GEO_DATA_API)
                 .addApi(Places.PLACE_DETECTION_API)
-                .addScope(Plus.SCOPE_PLUS_LOGIN)
-                .addScope(Plus.SCOPE_PLUS_PROFILE)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
@@ -508,10 +499,6 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
         mSource = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
         Log.i(LOG_TAG, mSource.toString());
 
-        /*
-        Plus.PeopleApi.loadVisible(mGoogleApiClient, null)
-                .setResultCallback(this);
-        */
         if (!mTargetSelected) {
             openPicker();
             mTargetSelected = true;
@@ -579,25 +566,6 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
             mTargetLong = savedInstanceState.getDouble(TARGET_LONGITUDE_KEY);
         }
         mTarget = new LatLng(mTargetLat, mTargetLong);
-    }
-
-
-    @Override
-    public void onResult(People.LoadPeopleResult peopleData) {
-        if (peopleData.getStatus().getStatusCode() == CommonStatusCodes.SUCCESS) {
-            PersonBuffer personBuffer = peopleData.getPersonBuffer();
-            try {
-                int count = personBuffer.getCount();
-                for (int i = 0; i < count; i++) {
-                    Log.d(LOG_TAG, "Display name: " + personBuffer.get(i).getDisplayName());
-                    Log.d(LOG_TAG, "Location: " + personBuffer.get(i).getCurrentLocation());
-                }
-            } finally {
-                personBuffer.release();
-            }
-        } else {
-            Log.e(LOG_TAG, "Error requesting visible circles: " + peopleData.getStatus());
-        }
     }
 
     /**
@@ -668,7 +636,7 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
     private void updateStrengthBar() {
         double force = PhysicsEngine.TimeToForce(mStartPullTime, mEndPullTime);
         int percent = (int) Math.round(
-            Math.min(MAX_DISPLAY_FORCE, force / MAX_DISPLAY_FORCE * 100)
+            Math.min(100, force / MAX_DISPLAY_FORCE * 100)
         );
         mStrengthBar.setProgress(percent);
     }
