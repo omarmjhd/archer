@@ -9,6 +9,7 @@ import android.util.Log;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -112,7 +113,11 @@ public class ResultMapActivity extends FragmentActivity {
         mMap.addMarker(hitMarker);
         mMap.addMarker(srcMarker);
         mMap.addMarker(targetMarker);
-        mMap.addCircle(new CircleOptions().center(mTarget).radius(100).strokeColor(Color.RED).fillColor(Color.BLUE));
+        Circle circle = mMap.addCircle(new CircleOptions()
+                .center(mTarget)
+                .radius(10000)
+                .strokeColor(Color.RED)
+                .fillColor(Color.BLUE))
 
         /*if (distanceCalculation() < 50000) { //abitrarily high to test
 
