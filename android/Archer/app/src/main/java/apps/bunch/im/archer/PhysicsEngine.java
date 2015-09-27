@@ -106,4 +106,21 @@ public class PhysicsEngine {
         return SphericalUtil.computeOffset(source, distanceTraveled(force, orientation), Math.toDegrees(orientation[0]));
     }
 
+    /**
+     *
+     * @param startTime beginning time of the pull, in ms
+     * @param endTime end time of the pull, in ms
+     * @return the relative force, in Newtons
+     */
+    public static double TimeToForce(long startTime, long endTime) {
+        double delta = (double) (endTime - startTime) / 1000;
+        Log.d(LOG_TAG, "Pull time: " + Double.toString(delta));
+        double a = 2.5e7;
+        double b = 1;
+        double c = 1e5;
+        double d = -2.5e2;
+        double force = a / (b + c * Math.pow(Math.E, -delta)) + d;
+        return force;
+    }
+
 }
