@@ -286,6 +286,7 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
         mGravity = (TextView) findViewById(R.id.gravity);
         mLinearAcceleration = (TextView) findViewById(R.id.linear_accel);
         mStrengthBar = (ProgressBar) findViewById(R.id.strength_bar);
+        mStrengthBar.setMax((int) PhysicsEngine.MAX_FORCE);
 
         // First, we initialize the Hub singleton with an application identifier.
         Hub hub = Hub.getInstance();
@@ -612,7 +613,7 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
     private void updateStrengthBar() {
         double force = PhysicsEngine.TimeToForce(mStartPullTime, mEndPullTime);
         int percent = (int) Math.round(
-            Math.min(MAX_DISPLAY_FORCE, force / MAX_DISPLAY_FORCE * 100)
+            Math.min(PhysicsEngine.MAX_FORCE, force / PhysicsEngine.MAX_FORCE * 100)
         );
         mStrengthBar.setProgress(percent);
     }

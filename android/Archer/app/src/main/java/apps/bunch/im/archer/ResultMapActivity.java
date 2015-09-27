@@ -49,7 +49,7 @@ public class ResultMapActivity extends FragmentActivity {
 
         mCircle = mMap.addCircle(new CircleOptions()
                 .center(mTarget)
-                .radius(10000)
+                .radius(0.1 * distanceBetweenSourceTarget())
                 .strokeColor(Color.BLACK)
                 .fillColor(Color.argb(100, 215, 44, 44)));
 
@@ -82,7 +82,6 @@ public class ResultMapActivity extends FragmentActivity {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
-            Log.d(LOG_TAG, "mMap is null");
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
             // Check if we were successful in obtaining the map.
