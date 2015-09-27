@@ -114,9 +114,14 @@ public class ResultMapActivity extends FragmentActivity {
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
         ).title("Target");
 
-        MarkerOptions animatedMarkerOptions = new MarkerOptions().position(mSource).icon(
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)
-        ).title("Animated").icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_arrow));
+
+        double heading = SphericalUtil.computeHeading(mSource, mHit) + 180;
+
+        MarkerOptions animatedMarkerOptions = new MarkerOptions()
+                .position(mSource)
+                .rotation((float) heading)
+                .title("Animated")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_arrow));
 
         mMap.addMarker(targetMarker);
 
