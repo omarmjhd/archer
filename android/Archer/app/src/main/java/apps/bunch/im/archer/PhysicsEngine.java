@@ -4,53 +4,25 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.SphericalUtil;
-import com.thalmic.myo.Arm;
 
 /**
  * Physics engine to handle arrow being shot, and return distance traveled by the arrow
  */
 public class PhysicsEngine {
 
-    private static final String LOG_TAG = "PhysicsEngine";
-
     public static final double mass = .03; //kg
     public static final double gravity = 9.81; //m/s^2
-
     public static final double MAX_FORCE = 2.5e7;
+    private static final String LOG_TAG = "PhysicsEngine";
 
     /**
-     * @param force force that arrow is exerting in Newtons
-     * @return acceleration of the arrow in m/s^2
+     * @param source      the source location LatLng object
+     * @param force       the force to fire the arrow with, in Newtons
+     * @param orientation the orientation of the bow, in radians (y,p,r)
+     * @return the destination LatLng object
      */
-    private static double acceleration(double force) {
-        return force / mass;
-    }
-
-    /**
-     * @param acceleration acceleration of the arrow as it leaves the bow in m/s^2
-     * @return velocity at which the arrow leaves the bow in m/s
-     */
-    private static double velocity(double acceleration) {
-        return Math.sqrt((double) 2 * acceleration);
-    }
-
-    /**
-     * @param velocity velocity at which the arrow leaves the bow in m/s
-     * @param radians  angle at which the arrow leaves the bow
-     * @return time that arrow is in the air in s
-     */
-    private static double time(double velocity, double radians) {
-        return 2 * (velocity * Math.sin(radians)) / gravity;
-    }
-
-    /**
-     * @param time     time arrow is in the air in s
-     * @param velocity velocity that has when leaving the bow in m/s
-     * @param radians  angle at which the arrow leaves the bow in radians
-     * @return distance, the distance an object travels in time at velocity in m
-     */
-    private static double distance(double time, double velocity, double radians) {
-        return velocity * Math.cos(radians) * time;
+    public static LatLng arrowFlightLatLng(LatLng source, double force, float[] orientation) {
+        return SphericalUtil.computeOffset(source, distanceTraveled(force, orientation), Math.toDegrees(orientation[0]));
     }
 
     /**
@@ -79,11 +51,23 @@ public class PhysicsEngine {
 
     }
 
-    //azimuth, pitch, roll,
-    //this is for angle of launch (shoulder tilt)
+    /**
+     * @param force force that arrow is exerting in Newtons
+     * @return acceleration of the arrow in m/s^2
+     */
+    private static double acceleration(double force) {
+        return force / mass;
+    }
 
     /**
-     *
+     * @param acceleration acceleration of the arrow as it leaves the bow in m/s^2
+     * @return velocity at which the arrow leaves the bow in m/s
+     */
+    private static double velocity(double acceleration) {
+        return Math.sqrt((double) 2 * acceleration);
+    }
+
+    /**
      * 2Pi logic is to fix negatives
      *
      * @param angles angles vector that contains azimuth, pitch and roll
@@ -98,20 +82,31 @@ public class PhysicsEngine {
         }
     }
 
+    //azimuth, pitch, roll,
+    //this is for angle of launch (shoulder tilt)
+
     /**
-     * @param source the source location LatLng object
-     * @param force the force to fire the arrow with, in Newtons
-     * @param orientation the orientation of the bow, in radians (y,p,r)
-     * @return the destination LatLng object
+     * @param velocity velocity at which the arrow leaves the bow in m/s
+     * @param radians  angle at which the arrow leaves the bow
+     * @return time that arrow is in the air in s
      */
-    public static LatLng arrowFlightLatLng(LatLng source, double force, float[] orientation) {
-        return SphericalUtil.computeOffset(source, distanceTraveled(force, orientation), Math.toDegrees(orientation[0]));
+    private static double time(double velocity, double radians) {
+        return 2 * (velocity * Math.sin(radians)) / gravity;
     }
 
     /**
-     *
+     * @param time     time arrow is in the air in s
+     * @param velocity velocity that has when leaving the bow in m/s
+     * @param radians  angle at which the arrow leaves the bow in radians
+     * @return distance, the distance an object travels in time at velocity in m
+     */
+    private static double distance(double time, double velocity, double radians) {
+        return velocity * Math.cos(radians) * time;
+    }
+
+    /**
      * @param startTime beginning time of the pull, in ms
-     * @param endTime end time of the pull, in ms
+     * @param endTime   end time of the pull, in ms
      * @return the relative force, in Newtons
      */
     public static double TimeToForce(long startTime, long endTime) {
@@ -120,7 +115,7 @@ public class PhysicsEngine {
         double a = 7e8;
         double b = 3e2;
         double c = 1e7;
-        double d = -7e1 ;
+        double d = -7e1;
         double force = a / (b + c * Math.pow(Math.E, -delta)) + d;
         Log.d(LOG_TAG, "Percent of max force: " + Double.toString(force / MAX_FORCE));
         return force;

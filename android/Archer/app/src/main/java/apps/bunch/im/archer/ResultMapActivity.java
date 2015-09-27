@@ -2,11 +2,10 @@ package apps.bunch.im.archer;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -97,6 +96,10 @@ public class ResultMapActivity extends FragmentActivity {
         }
     }
 
+    private double distanceBetweenSourceTarget() {
+        return SphericalUtil.computeDistanceBetween(mSource, mTarget);
+    }
+
     /**
      * This is where we can add markers or lines, add listeners or move the camera. In this case, we
      * just add a marker near Africa.
@@ -143,11 +146,11 @@ public class ResultMapActivity extends FragmentActivity {
 
 
         /*
-        
-        
+
+
         LatLngInterpolator mLatLngInterpolator = new LatLngInterpolator.Spherical();
         MarkerAnimation.animateMarkerToGB(mAnimatedMarker, mHit, mLatLngInterpolator);
-        
+
         CameraUpdate center = CameraUpdateFactory.newLatLng(mHit);
         CameraUpdate zoom=CameraUpdateFactory.zoomTo(10);
 
@@ -175,19 +178,15 @@ public class ResultMapActivity extends FragmentActivity {
         });
     }
 
-    private double distanceFromTarget() {
-        return SphericalUtil.computeDistanceBetween(mTarget, mHit); //distanceTo returns meters
-    }
-
-    private double distanceBetweenSourceTarget() {
-        return SphericalUtil.computeDistanceBetween(mSource, mTarget);
-    }
-
     private void hitSensor() {
 
         if (distanceFromTarget() < RADIUS_DISTANCE_RATIO * distanceBetweenSourceTarget()) { //abitrarily high to test
             mCircle.setFillColor(Color.argb(100, 44, 215, 44));
         }
 
+    }
+
+    private double distanceFromTarget() {
+        return SphericalUtil.computeDistanceBetween(mTarget, mHit); //distanceTo returns meters
     }
 }
