@@ -13,6 +13,7 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.SphericalUtil;
 
 
@@ -121,6 +122,11 @@ public class ResultMapActivity extends FragmentActivity {
         mMap.addMarker(targetMarker);
         hitSensor();
 
+        mMap.addPolyline(new PolylineOptions().add(mSource, mHit)
+                .width(3)
+                .color(Color.RED)
+        );
+
     }
 
     private double distanceFromTarget() {
@@ -136,6 +142,6 @@ public class ResultMapActivity extends FragmentActivity {
         if (distanceFromTarget() < 0.1 * distanceBetweenSourceTarget()) { //abitrarily high to test
             mCircle.setFillColor(Color.argb(100, 44, 215, 44));
         }
-        
+
     }
 }
