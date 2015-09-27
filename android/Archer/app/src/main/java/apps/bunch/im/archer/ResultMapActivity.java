@@ -10,7 +10,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -30,7 +29,7 @@ public class ResultMapActivity extends FragmentActivity {
     public static final String HIT_LONGITUDE = "im.bunch.apps.archer.HIT_LONGITUDE";
     public static final String HIT_LATITUDE = "im.bunch.apps.archer.HIT_LATITUDE";
 
-    public static final double RADIUS_DISTANCE_RATIO = 0.35;
+    public static final double RADIUS_DISTANCE_RATIO = 0.15;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private LatLng mHit;
@@ -84,10 +83,6 @@ public class ResultMapActivity extends FragmentActivity {
                 setUpMap();
             }
         }
-    }
-
-    private double distanceBetweenSourceTarget() {
-        return SphericalUtil.computeDistanceBetween(mSource, mTarget);
     }
 
     /**
@@ -180,5 +175,9 @@ public class ResultMapActivity extends FragmentActivity {
 
     private double distanceFromTarget() {
         return SphericalUtil.computeDistanceBetween(mTarget, mHit); //distanceTo returns meters
+    }
+
+    private double distanceBetweenSourceTarget() {
+        return SphericalUtil.computeDistanceBetween(mSource, mTarget);
     }
 }
