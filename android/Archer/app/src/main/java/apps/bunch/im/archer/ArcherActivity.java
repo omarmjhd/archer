@@ -73,9 +73,12 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
     private GoogleApiClient mGoogleApiClient;
     private SensorManager mSensorManager;
     private Sensor mAccelerometer, mGeomagnetic;
+    private int sampleSize = 5;
+    private int index = 0;
     private float[] gravity = new float[3];
     private float[] geomagnetic = new float[3];
     private float[] mOrientation = new float[3];
+    private float[][] mOrientations = new float[sampleSize][3];
     private boolean mResolvingError = false;
     private long mStartPullTime, mEndPullTime;
     private boolean mTargetSelected = false;
@@ -378,14 +381,17 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
             if (SensorManager.getRotationMatrix(R, I, gravity, geomagnetic)) {
                 mOrientation = new float[3];
                 SensorManager.getOrientation(R, mOrientation);
+                mOrientations[index++] = mOrientation;
+                index %= 5;
+                float[] foo = movingAverage();
                 mOrientationView.setText(String.format("Orientation (y,p,r) => %.2f, %.2f, %.2f",
-                        mOrientation[0], mOrientation[1], mOrientation[2]));
+                        Math.toDegrees(foo[0]), Math.toDegrees(foo[1]), Math.toDegrees(foo[2])));
             }
         }
 
         if (mSource != null && mTarget != null) {
             double heading = SphericalUtil.computeHeading(mSource, mTarget);
-            mHeadingView.setText("Heading: " + Double.toString(heading));
+            mHeadingView.setText(String.format("Heading: %.3f", Double.toString(heading)));
         }
     }
 
@@ -571,6 +577,19 @@ public class ArcherActivity extends FragmentActivity implements SensorEventListe
         mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(
                 new LatLngBounds.Builder().include(mSource).include(mTarget).build(), 256));
 
+    }
+
+    private float[] movingAverage() {
+        float[] result = new float[3];
+        for (int i = 0; i < mOrientations.length; i++) {
+            result[0] = mOrientations[i][0];
+            result[1] = mOrientations[i][1];
+            result[2] = mOrientations[i][2];
+        }
+        result[0] /= mOrientations.length;
+        result[1] /= mOrientations.length;
+        result[2] /= mOrientations.length;
+        return result;
     }
 
     private void setStateFlying() {

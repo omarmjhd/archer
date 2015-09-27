@@ -30,13 +30,12 @@ public class ResultMapActivity extends FragmentActivity {
     public static final String HIT_LONGITUDE = "im.bunch.apps.archer.HIT_LONGITUDE";
     public static final String HIT_LATITUDE = "im.bunch.apps.archer.HIT_LATITUDE";
 
-    public static final double RADIUS_DISTANCE_RATIO = 0.25;
+    public static final double RADIUS_DISTANCE_RATIO = 0.35;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private LatLng mHit;
     private LatLng mTarget;
     private LatLng mSource;
-    private Circle mCircle;
     private Marker mAnimatedMarker;
 
     @Override
@@ -50,15 +49,6 @@ public class ResultMapActivity extends FragmentActivity {
         mTarget = new LatLng(intent.getDoubleExtra(TARGET_LATITUDE, 0.0), intent.getDoubleExtra(TARGET_LONGITUDE, 0.0));
 
         setUpMapIfNeeded();
-
-        mCircle = mMap.addCircle(new CircleOptions()
-                .center(mTarget)
-                .radius(RADIUS_DISTANCE_RATIO * distanceBetweenSourceTarget())
-                .strokeColor(Color.BLACK)
-                .fillColor(Color.argb(100, 215, 44, 44)));
-
-        mMap.setMyLocationEnabled(true);
-
     }
 
     @Override
@@ -118,6 +108,21 @@ public class ResultMapActivity extends FragmentActivity {
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
         ).title("Target");
 
+        mMap.addMarker(targetMarker);
+
+        int fill = Color.argb(100, 216, 44, 44);
+
+        if (distanceFromTarget() < RADIUS_DISTANCE_RATIO * distanceBetweenSourceTarget()) { //abitrarily high to test
+            fill = Color.argb(100, 44, 216, 44);
+        }
+
+        mMap.addCircle(new CircleOptions()
+                .center(mTarget)
+                .radius(RADIUS_DISTANCE_RATIO * distanceBetweenSourceTarget())
+                .strokeColor(Color.BLACK)
+                .fillColor(fill));
+
+
         /*
         double heading = SphericalUtil.computeHeading(mSource, mHit);
 
@@ -133,17 +138,12 @@ public class ResultMapActivity extends FragmentActivity {
                 .position(mSource).title("Animated")
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
 
-        mMap.addMarker(targetMarker);
-
         mAnimatedMarker = mMap.addMarker(animatedMarkerOptions);
-
-        hitSensor();
 
         mMap.addPolyline(new PolylineOptions().add(mSource, mHit)
                         .width(3)
                         .color(Color.RED)
         );
-
 
         /*
 
@@ -176,14 +176,6 @@ public class ResultMapActivity extends FragmentActivity {
                 mMap.setOnMapLoadedCallback(null);
             }
         });
-    }
-
-    private void hitSensor() {
-
-        if (distanceFromTarget() < RADIUS_DISTANCE_RATIO * distanceBetweenSourceTarget()) { //abitrarily high to test
-            mCircle.setFillColor(Color.argb(100, 44, 215, 44));
-        }
-
     }
 
     private double distanceFromTarget() {
