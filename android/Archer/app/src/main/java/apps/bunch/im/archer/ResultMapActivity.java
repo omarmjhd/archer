@@ -116,14 +116,14 @@ public class ResultMapActivity extends FragmentActivity {
         Circle circle = mMap.addCircle(new CircleOptions()
                 .center(mTarget)
                 .radius(10000)
-                .strokeColor(Color.RED)
-                .fillColor(Color.BLUE))
+                .strokeColor(Color.BLACK)
+                .fillColor(Color.argb(215, 44, 44, 0)));
 
-        /*if (distanceCalculation() < 50000) { //abitrarily high to test
+        if (distanceCalculation() < 1000) { //abitrarily high to test
 
+            circle.setFillColor(Color.argb(44, 215, 44, 0));
 
-
-        }*/
+        }
     }
 
     private float distanceCalculation() {
