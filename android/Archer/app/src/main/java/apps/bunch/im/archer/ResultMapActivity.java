@@ -1,8 +1,6 @@
 package apps.bunch.im.archer;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -118,7 +116,7 @@ public class ResultMapActivity extends FragmentActivity {
 
         MarkerOptions animatedMarkerOptions = new MarkerOptions().position(mSource).icon(
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)
-        ).title("Animated").icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("arrow.png", 20, 20)));
+        ).title("Animated").icon(BitmapDescriptorFactory.fromResource(R.drawable.arrow));
 
         mMap.addMarker(targetMarker);
 
@@ -156,12 +154,5 @@ public class ResultMapActivity extends FragmentActivity {
             mCircle.setFillColor(Color.argb(100, 44, 215, 44));
         }
 
-    }
-
-    public Bitmap resizeMapIcons(String iconName,int width, int height){
-        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), getResources().
-                getIdentifier(iconName, "drawable", getPackageName()));
-        Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, width, height, false);
-        return resizedBitmap;
     }
 }
