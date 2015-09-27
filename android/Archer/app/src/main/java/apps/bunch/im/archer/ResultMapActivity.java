@@ -112,7 +112,7 @@ public class ResultMapActivity extends FragmentActivity {
 
         MarkerOptions animatedMarkerOptions = new MarkerOptions().position(mSource).icon(
                 BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)
-        ).title("Animated");
+        ).title("Animated").icon(BitmapDescriptorFactory.fromResource(R.drawable.arrow));
 
         mMap.addMarker(targetMarker);
 
