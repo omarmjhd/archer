@@ -13,7 +13,7 @@ public class PhysicsEngine {
 
     private static final String LOG_TAG = "PhysicsEngine";
 
-    public static final double mass = 500; //kg
+    public static final double mass = .03; //kg
     public static final double gravity = 9.81;
 
     /**
