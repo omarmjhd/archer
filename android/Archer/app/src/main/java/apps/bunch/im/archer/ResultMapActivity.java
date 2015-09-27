@@ -120,6 +120,7 @@ public class ResultMapActivity extends FragmentActivity {
         MarkerOptions animatedMarkerOptions = new MarkerOptions()
                 .position(mSource)
                 .rotation((float) heading)
+                .anchor((float) 0.5, 0)
                 .title("Animated")
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.rsz_arrow));
 
@@ -131,8 +132,6 @@ public class ResultMapActivity extends FragmentActivity {
         MarkerAnimation.animateMarkerToGB(mAnimatedMarker, mHit, mLatLngInterpolator);
 
         hitSensor();
-
-
 
         CameraUpdate center = CameraUpdateFactory.newLatLng(mHit);
         CameraUpdate zoom=CameraUpdateFactory.zoomTo(10);
