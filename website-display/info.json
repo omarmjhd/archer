@@ -1,5 +1,5 @@
 { 
   "name":"Archer",
-  "info":"Android application that works in conjuction with a Myo armband to allow users to "shoot arrows" at targets placed on Google Maps.", 
+  "info":"Android application that works in conjuction with a Myo armband to allow users to \"shoot arrows\" at targets placed on Google Maps.", 
   "image":"https://raw.githubusercontent.com/omarmjhd/archer/master/website-display/image.jpg"
 }
